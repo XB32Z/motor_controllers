@@ -1,5 +1,6 @@
 
 #include <fcntl.h>
+#include <unistd.h>
 extern "C" {
 #include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
@@ -98,7 +99,9 @@ PCA9685Communication::PCA9685Communication(const std::string& port,
   }
 }
 
-PCA9685Communication::~PCA9685Communication() {}
+PCA9685Communication::~PCA9685Communication() {
+  close(this->file_);
+}
 
 void PCA9685Communication::start() {
   this->restart();
@@ -117,7 +120,13 @@ void PCA9685Communication::start() {
   i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 3, 0);
 }
 
-void PCA9685Communication::stop() {}
+void PCA9685Communication::stop() {
+  // Set all channels to 0
+  i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL, 0);
+  i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 1, 0);
+  i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 2, 0);
+  i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 3, 0);
+}
 
 void PCA9685Communication::setPWMFrequency(float frequency,
                                            bool externalClock) {

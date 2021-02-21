@@ -1,0 +1,4 @@
+project(motor_controllers_nodes)
+
+add_executable(simple_servo_controller_node simple_servo_control_node.cpp)
+target_link_libraries(simple_servo_controller_node PUBLIC pca9685_interface)

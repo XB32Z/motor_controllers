@@ -1,12 +1,14 @@
 #include <signal.h>
 
+#include <ctime>
 #include <iostream>
-#include <motor_controllers/communication/pca9685_communication.hpp>
+#include <cmath>
+#include <motor_controllers/communication/pca9685_communication.h>
 #include <thread>
 
 bool isRunning;
 
-void onSignalReceived(int signum) { isRunning = false; }
+void onSignalReceived(int) { isRunning = false; }
 
 int main(int argc, char* argv[]) {
   std::string fileName = "/dev/i2c-1";
@@ -25,13 +27,21 @@ int main(int argc, char* argv[]) {
 
   communication.setOscillatorFrequency(27000000);
   communication.setPWMFrequency(1600);
+  auto channel0 = communication.configureChannel(0);
   communication.start();
+
+  signal(SIGINT, onSignalReceived);
 
   isRunning = true;
 
   std::cout << "Starting controller" << std::endl;
+  float amplitude = communication.getMaxValue() - communication.getMinValue();
+  float frequency = 5;
+  clock_t begin_time = clock();
   while (isRunning) {
-    communication.setChannelValue(0, 65535);
+    channel0->setValue(amplitude * sin(2 * M_PI * frequency *
+                                      (clock() - begin_time) / CLOCKS_PER_SEC));
+    begin_time = clock();
   }
 
   std::cout << "Stopping controller" << std::endl;

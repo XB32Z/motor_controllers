@@ -21,6 +21,11 @@ The datasheet can be found @ https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf
 
 This controller is found on ready to use RaspberryPi hat to controller servo motors. This code is tested on RaspberryPi 4 with the "Adafruit Servo/PWM Pi HAT!".
 
+### BCM2835
+```
+sudo apt install libcap2 libcap-dev
+```
+
 #### Requirements 
 The following dependencies need to be installed on the host:
 ```

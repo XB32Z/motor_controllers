@@ -36,7 +36,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    */
   BCM2835BinaryChannel(const Builder& builder);
 
-  ~BCM2835BinaryChannel() = default;
+  ~BCM2835BinaryChannel();
 
   BCM2835BinaryChannel(const BCM2835BinaryChannel&) = delete;
   
@@ -55,6 +55,9 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    *
    */
   void initialize();
+
+  void setInternal(const BinarySignal&);
+
 
  private:
   const uint8_t pinNumber_;

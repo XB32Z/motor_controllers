@@ -29,7 +29,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
   struct Builder {
     uint8_t pinNumber;
     uint8_t channel;
-    int64_t range;
+    uint32_t range;
   };
 
  public:
@@ -39,7 +39,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
   BCM2835PWMChannel(const Builder& builder,
                     std::function<void(float)> setPWMFreq);
 
-  ~BCM2835PWMChannel() = default;
+  ~BCM2835PWMChannel();
 
   BCM2835PWMChannel(const BCM2835PWMChannel&) = delete;
   
@@ -102,7 +102,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
  private:
   uint8_t pinNumber_;
   uint8_t pwmChannel_;
-  uint8_t range_;
+  uint32_t range_;
   std::function<void(float)> setPWMFreq_;
 };
 }  // namespace communication

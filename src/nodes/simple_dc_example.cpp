@@ -1,4 +1,3 @@
-#include <bcm2835.h>
 #include <motor_controllers/communication/bcm2835_interface.h>
 #include <signal.h>
 
@@ -19,17 +18,21 @@ int main(int, char*[]) {
   std::cout << "Connecting to BCM2835" << std::endl;
   BCM2835Interface communication = BCM2835Interface();
 
-  BCM2835PWMChannel::Builder pwmABuilder = {
-      .pinNumber = 12, .channel = 0, .range = 1024};
+  BCM2835PWMChannel::Builder pwmABuilder = BCM2835PWMChannel::Builder();
+  pwmABuilder.pinNumber = 12;
+  pwmABuilder.channel = 0;
+  pwmABuilder.range = 1024;
   BCM2835PWMChannelRef pwmA = communication.configureChannel(pwmABuilder);
-  pwmA->setPWMFrequency(50);
+  pwmA->setPWMFrequency(11718.75);
 
-  BCM2835BinaryChannel::Builder m1Builder = {
-      .pinNumber = 6, .channelType = ChannelType::OUTPUT};
+  BCM2835BinaryChannel::Builder m1Builder = BCM2835BinaryChannel::Builder();
+  m1Builder.pinNumber = 6;
+  m1Builder.channelType = ChannelType::OUTPUT;
   BCM2835BinaryChannelRef m1 = communication.configureChannel(m1Builder);
 
-  BCM2835BinaryChannel::Builder m2Builder = {
-      .pinNumber = 13, .channelType = ChannelType::OUTPUT};
+  BCM2835BinaryChannel::Builder m2Builder = BCM2835BinaryChannel::Builder();
+  m2Builder.pinNumber = 13;
+  m2Builder.channelType = ChannelType::OUTPUT;
   BCM2835BinaryChannelRef m2 = communication.configureChannel(m2Builder);
 
   communication.start();
@@ -41,7 +44,7 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(2);
+  pwmA->setDutyCyle(0.5); // half max speed
 
   while (isRunning) std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

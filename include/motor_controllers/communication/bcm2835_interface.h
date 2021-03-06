@@ -82,6 +82,7 @@ class BCM2835Interface
 
  private:
   uint8_t clockDivider_;
+  bool running_;
 };
 }  // namespace communication
 }  // namespace motor_controllers

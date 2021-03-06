@@ -42,6 +42,7 @@ void PCA9685Channel::setPWM(float start, float end) {
 }
 
 void PCA9685Channel::setDutyCyle(float dutyCycle) {
+  dutyCycle = std::max(std::min(dutyCycle, 1.0f), 0.0f);
   this->setPWM(0, dutyCycle * this->range_);
 }
 

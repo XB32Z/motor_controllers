@@ -24,11 +24,13 @@ static const std::map<int, bcm2835PWMClockDivider> clockDividerMapping = {
     {2048, BCM2835_PWM_CLOCK_DIVIDER_2048}};
 
 BCM2835Interface::BCM2835Interface()
-    : clockDivider_(BCM2835_PWM_CLOCK_DIVIDER_16) {}
+    : clockDivider_(BCM2835_PWM_CLOCK_DIVIDER_16), running_(false) {}
 
 BCM2835Interface::~BCM2835Interface() { this->stop(); }
 
 void BCM2835Interface::start() {
+  if (this->running_) return;
+
   if (!bcm2835_init()) {
     throw std::runtime_error("Failed to initialize BCM2835");
   }
@@ -46,10 +48,12 @@ void BCM2835Interface::start() {
                             BCM2835BinaryChannel::Builder>::channels_) {
     channel->initialize();
   }
+
+  this->running_ = true;
 }
 
-void BCM2835Interface::stop() { 
-
+void BCM2835Interface::stop() {
+  if (!this->running_) return;
   for (auto& channel :
        this->ChannelBuilder<BCM2835PWMChannel,
                             BCM2835PWMChannel::Builder>::channels_) {
@@ -61,12 +65,26 @@ void BCM2835Interface::stop() {
                             BCM2835BinaryChannel::Builder>::channels_) {
     channel->set(BinarySignal::BINARY_LOW);
   }
-  bcm2835_close(); 
-  }
+  bcm2835_close();
+  this->running_ = false;
+}
 
 void BCM2835Interface::setClockDivider(float frequency) {
   // Divides the basic 19.2MHz PWM clock.
-  int divider = static_cast<int>(ceil(19.2 * 10e6 / frequency));
+  // 4.6875*10e3 is the minimum.
+  unsigned int divider =
+      std::ceil(std::max(19.2 * 10e6 / frequency, 4.6875 * 10e3));
+
+  // Find next power of 2
+  // https://web.archive.org/web/20160703165415/https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+  divider--;
+  divider |= divider >> 1;
+  divider |= divider >> 2;
+  divider |= divider >> 4;
+  divider |= divider >> 8;
+  divider |= divider >> 16;
+  divider++;
+
   auto fDivider = clockDividerMapping.find(divider);
   if (fDivider != clockDividerMapping.end()) {
     this->clockDivider_ = fDivider->second;

@@ -1,125 +1,161 @@
 #!/usr/bin/env python
 import argparse
+import enum
 import keyboard
 import RPi.GPIO as GPIO
 import time
-from typing import Callable, Dict
+from typing import Callable, Dict, Optional, List
 
 
 class PWMController(object):
-    def __init__(self, m1: int, m2: int, m3: int = -1, m4: int = -1):
-        """Create a PWM controller on the GPIOs.
+    class Direction(enum.IntEnum):
+        STOP = 0
+        FORWARD = 1
+        BACKWARD = 2
 
-        :param m1:
-        :param m2:
-        :param m3:
-        :param m4:
+    def __init__(
+        self, pwm_pin: int, direction_pin1: Optional[int], direction_pin2: Optional[int]
+    ) -> None:
+        """Create a PWMController with direction
+
+        Args:
+            pwm_pin: pin of the PWM channel.
+            direction_pin1: first bit of the 2  bit channel to indicate direction.
+            direction_pin2: second bit of the 2 bit channel to indicate direction.
         """
-        self._m1: int = m1
-        self._m2: int = m2
-        self._m3: int = m3
-        self._m4: int = m4
+        self._direction_pin1: int = direction_pin1
+        self._direction_pin2: int = direction_pin2
 
-        self._pwm = 50
+        self._duty_cycle = 0
 
-        PIN = 18
-        D1 = 12
-        D2 = 26
+        GPIO.setup(self._direction_pin1, GPIO.OUT)
+        GPIO.setup(self._direction_pin2, GPIO.OUT)
 
+        GPIO.setup(pwm_pin, GPIO.OUT)
+        self._motor = GPIO.PWM(pwm_pin, 500)  # default frequency
+        self._motor.start(self._duty_cycle)  # default duty cycle
+
+    def set_frequency(self, freq: float) -> None:
+        """Set frequency in Hz"""
+        self._motor.ChangeFrequency(freq)
+
+    def _set_direction(self, direction: Direction) -> None:
+        if direction.value > 3:
+            raise RuntimeError("Can't set this direction")
+        GPIO.output(self._direction_pin1, (direction.value >> 0) & 1)
+        GPIO.output(self._direction_pin2, (direction.value >> 0) & 1)
+
+    def stop(self) -> None:
+        self._motor.ChangeDutyCycle(0)
+        self._set_direction(self.Direction.STOP)
+
+    def forward(self) -> None:
+        self._set_direction(self.Direction.FORWARD)
+
+    def reverse(self) -> None:
+        self._set_direction(self.Direction.BACKWARD)
+
+    def increase_speed(self) -> None:
+        if self._duty_cycle + 10 <= 100:
+            self._duty_cycle += 10
+            self._motor.ChangeDutyCycle(self._duty_cycle)
+
+    def decrease_speed(self) -> None:
+        if self._duty_cycle - 10 >= 0:
+            self._duty_cycle -= 10
+            self._motor.ChangeDutyCycle(self._duty_cycle)
+
+
+class MotorBuilder(object):
+    def __init__(self, on_register_controller: Callable[[PWMController], None]) -> None:
+        self.__on_register_controller: Callable[
+            [PWMController], None
+        ] = on_register_controller
+
+    def create_motor(self, direction_pin1: int, direction_pin2: int, pwm_pin: int):
+        controller = PWMController(direction_pin1, direction_pin2, pwm_pin)
+        self.__on_register_controller(controller)
+        return controller
+
+
+class GPIOCommunication(object):
+    """ Wrapper for communication with the GPIOs"""
+
+    def __init__(self) -> None:
+        self._registered_controllers: List[PWMController] = list()
+
+    def _register_controller(self, controller: PWMController) -> None:
+        self._registered_controllers.append(controller)
+
+    def connect(self, pin: int) -> "GPIOCommunication":
+        GPIO.setup(pin, GPIO.IN, GPIO.PUD_UP)
+        return self
+
+    def __enter__(self) -> MotorBuilder:
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
-        GPIO.setup(PIN, GPIO.IN, GPIO.PUD_UP)
+        return MotorBuilder(self._register_controller)
 
-        GPIO.setup(args.M1, GPIO.OUT)
-        GPIO.setup(args.M2, GPIO.OUT)
-        GPIO.setup(args.M3, GPIO.OUT)
-        GPIO.setup(args.M4, GPIO.OUT)
-
-        self._motor1 = self._create_motor(D1)
-        self._motor2 = self._create_motor(D2)
-
-    def _create_motor(self, pin: int):
-        GPIO.setup(pin, GPIO.OUT)
-        motor = GPIO.PWM(pin, 500)
-        motor.start(50)
-        return motor
-
-    def _set_motor(self, a1: int, a2: int, b1: int, b2: int):
-        GPIO.output(self._m1, a1)
-        GPIO.output(self._m2, a2)
-        GPIO.output(self._m3, b1)
-        GPIO.output(self._m4, b2)
-
-    def forward(self):
-        self._set_motor(1, 0, 1, 0)
-
-    def stop(self):
-        self._set_motor(0, 0, 0, 0)
-
-    def reverse(self):
-        self._set_motor(0, 1, 0, 1)
-
-    def left(self):
-        self._set_motor(1, 0, 0, 0)
-
-    def right(self):
-        self._set_motor(0, 0, 1, 0)
-
-    def cleanup(self):
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        for pwm_controller in self._registered_controllers:
+            pwm_controller.stop()
         GPIO.cleanup()
-
-    def increase_speed(self):
-        if self._pwm + 10 < 101:
-            self._pwm += 10
-            self._motor1.ChangeDutyCycle(self._pwm)
-            self._motor2.ChangeDutyCycle(self._pwm)
-
-    def decrease_speed(self):
-        if self._pwm - 10 > -1:
-            self._pwm -= 10
-            self._motor1.ChangeDutyCycle(self._pwm)
-            self._motor2.ChangeDutyCycle(self._pwm)
 
 
 if __name__ == "__main__":
 
+    PIN = 18
+    D1 = 12
+
     arg_parser = argparse.ArgumentParser(
         description="Program to test DC motors using GPIOs"
     )
-    arg_parser.add_argument("-M1", help="PWM signal for M1", type=int, default=6)
-    arg_parser.add_argument("-M2", help="PWM signal for M2", type=int, default=13)
-    arg_parser.add_argument("-M3", help="PWM signal for M3", type=int, default=20)
-    arg_parser.add_argument("-M4", help="PWM signal for M4", type=int, default=21)
+    arg_parser.add_argument(
+        "-m1", help="Direction signal 1 for M1", type=int, default=20
+    )
+    arg_parser.add_argument(
+        "-m2", help="Direction signal 2 for M1", type=int, default=21
+    )
+    arg_parser.add_argument("-pwma", help="PWM signal for M1", type=int, default=26)
+
+    arg_parser.add_argument(
+        "-m3", help="Direction signal 1 for M2", type=int, default=6
+    )
+    arg_parser.add_argument(
+        "-m4", help="Direction signal 2 for M2", type=int, default=13
+    )
+    arg_parser.add_argument("-pwmb", help="PWM signal for M2", type=int, default=12)
 
     args, _ = arg_parser.parse_known_args()
 
-    controller = PWMController(args.m1, args.m2, args.m3, args.m4)
+    communication = GPIOCommunication()
 
-    mappings: Dict[str, Callable[[], None]] = {
-        "down": controller.reverse,
-        "up": controller.forward,
-        "left": controller.left,
-        "right": controller.right,
-        "space": controller.stop,
-    }
+    with communication.connect(PIN) as motor_builder:
+        m1 = motor_builder.create_motor(args.pwma, args.m1, args.m2)
+        m2 = motor_builder.create_motor(args.pwmb, args.m3, args.m4)
 
-    def on_keyboard_pressed(e):
-        pressed_key = keyboard.normalize_name(e.name)
+        mappings: Dict[str, Callable[[], None]] = {
+            "down": m1.reverse,
+            "up": m1.forward,
+            "left": m2.reverse,
+            "right": m2.forward,
+        }
+
+        def on_keyboard_pressed(e):
+            pressed_key = keyboard.normalize_name(e.name)
+            try:
+                mappings[pressed_key]()
+            except KeyError:
+                pass
+
+        keyboard.on_press(on_keyboard_pressed)
+
+        print("Starting")
+
         try:
-            mappings[pressed_key]()
-        except KeyError:
-            pass
-
-    keyboard.on_press(on_keyboard_pressed)
-
-    print("Starting")
-    controller.stop()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        print("Finishing program")
-    finally:
-        controller.cleanup()
-        print("Cleaned up")
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("Finishing program")
+        finally:
+            print("Cleaned up")

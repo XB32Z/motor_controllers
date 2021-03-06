@@ -43,7 +43,7 @@ class PWMController(object):
         if direction.value > 3:
             raise RuntimeError("Can't set this direction")
         GPIO.output(self._direction_pin1, (direction.value >> 0) & 1)
-        GPIO.output(self._direction_pin2, (direction.value >> 0) & 1)
+        GPIO.output(self._direction_pin2, (direction.value >> 1) & 1)
 
     def stop(self) -> None:
         self._motor.ChangeDutyCycle(0)
@@ -84,6 +84,9 @@ class GPIOCommunication(object):
     def __init__(self) -> None:
         self._registered_controllers: List[PWMController] = list()
 
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+
     def _register_controller(self, controller: PWMController) -> None:
         self._registered_controllers.append(controller)
 
@@ -92,8 +95,6 @@ class GPIOCommunication(object):
         return self
 
     def __enter__(self) -> MotorBuilder:
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
         return MotorBuilder(self._register_controller)
 
     def __exit__(self, exc_type, exc_val, exc_tb) -> None:

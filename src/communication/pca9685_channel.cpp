@@ -11,37 +11,43 @@ namespace motor_controllers {
 
 namespace communication {
 
-PCA9685Channel::PCA9685Channel(uint8_t channel,
-                               std::function<void(uint8_t, uint8_t*)> fctPtr)
-    : CommunicationChannel(), channel_(channel), setValue_(fctPtr) {}
+PCA9685Channel::PCA9685Channel(const Builder& buidler,
+                               std::function<void(uint8_t, uint8_t*)> setValue,
+                               std::function<void(float)> setPWMFreq)
+    : IPWMSignalChannel(),
+      channel_(buidler.channelId),
+      range_(buidler.range),
+      setValue_(setValue),
+      setPWMFreq_(setPWMFreq) {}
 
-void PCA9685Channel::setValue(float valuef) {
+void PCA9685Channel::setPWMFrequency(float frequency) {
+  this->setPWMFreq_(frequency);
+}
+
+void PCA9685Channel::setPWM(float start, float end) {
   if (this->isCommunicationClosed()) {
     throw std::runtime_error("Communication was closed, cannot send value");
   }
 
-  uint8_t value = static_cast<uint8_t>(valuef);
-  uint16_t value_12bit = value >> 4;
+  uint16_t startVal = static_cast<uint16_t>(start);
+  uint16_t endVal = static_cast<uint16_t>(end);
+
   uint8_t values[4];
-  if (value_12bit == 0x0FFF) {
-    values[0] = 0x10;
-    values[1] = 0x00;
-    values[2] = 0x00;
-    values[3] = 0x00;
-  } else if (value_12bit == 0x0FFF) {
-    values[0] = 0x00;
-    values[1] = 0x00;
-    values[2] = 0x10;
-    values[3] = 0x00;
-  } else {  // PWM
-    values[0] = 0x00;
-    values[1] = 0x00;
-    values[2] = (value_12bit + 1) & 0xFF;
-    values[3] = (value_12bit + 1) >> 8;
-  }
+  values[0] = startVal;
+  values[1] = startVal >> 8;
+  values[2] = endVal;
+  values[3] = endVal >> 8;
 
   this->setValue_(this->channel_, values);
 }
+
+void PCA9685Channel::setDutyCyle(float dutyCycle) {
+  this->setPWM(0, dutyCycle * this->range_);
+}
+
+float PCA9685Channel::getMinValue() const { return static_cast<float>(0x0000); }
+
+float PCA9685Channel::getMaxValue() const { return static_cast<float>(0x0FFF); }
 
 }  // namespace communication
 }  // namespace motor_controllers

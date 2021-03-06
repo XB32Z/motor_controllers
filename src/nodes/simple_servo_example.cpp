@@ -1,10 +1,10 @@
+#include <motor_controllers/communication/pca9685_interface.h>
 #include <signal.h>
 
-#include <ctime>
+#include <chrono>
 #include <iostream>
-#include <cmath>
-#include <motor_controllers/communication/pca9685_communication.h>
 #include <thread>
+#include <vector>
 
 bool isRunning;
 
@@ -21,27 +21,44 @@ int main(int argc, char* argv[]) {
     i2cAdress = std::stoi(argv[2]);
   }
 
-  std::cout << "Connecting to " << fileName << " at " << i2cAdress << std::endl;
-  motor_controllers::communication::PCA9685Communication communication(
-      fileName, i2cAdress);
+  using namespace motor_controllers::communication;
 
+  std::cout << "Connecting to " << fileName << " at " << i2cAdress << std::endl;
+  PCA9685Interface communication(fileName, i2cAdress);
   communication.setOscillatorFrequency(27000000);
-  communication.setPWMFrequency(1600);
-  auto channel0 = communication.configureChannel(0);
+
+  // Create the 16 channels of the PCA9685 chip
+  std::vector<PCA9685ChannelRef> channels;
+  for (uint8_t i = 0; i < 16; ++i) {
+    PCA9685Channel::Builder builder = {.channelId = i, .range = 0x0FFF};
+    PCA9685ChannelRef channel = communication.configureChannel(builder);
+    channel->setPWMFrequency(50);  // Freq is shared with all channels.
+    channels.push_back(std::move(channel));
+  }
+
   communication.start();
 
+  isRunning = true;
   signal(SIGINT, onSignalReceived);
 
-  isRunning = true;
-
   std::cout << "Starting controller" << std::endl;
-  float amplitude = communication.getMaxValue() - communication.getMinValue();
-  float frequency = 5;
-  clock_t begin_time = clock();
-  while (isRunning) {
-    channel0->setValue(amplitude * sin(2 * M_PI * frequency *
-                                      (clock() - begin_time) / CLOCKS_PER_SEC));
-    begin_time = clock();
+
+  for (auto& channel : channels) {
+    if (!isRunning) break;
+    for (uint16_t pulselen = 150; pulselen < 600; ++pulselen) {
+      channel->setDutyCyle(pulselen / channel->getMaxValue());
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
+  }
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  for (auto& channel : channels) {
+    if (!isRunning) break;
+    for (uint16_t pulselen = 600; pulselen < 150; --pulselen) {
+      channel->setDutyCyle(pulselen / channel->getMaxValue());
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    }
   }
 
   std::cout << "Stopping controller" << std::endl;

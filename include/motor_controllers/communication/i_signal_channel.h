@@ -1,5 +1,5 @@
 /**
- * @file communication_channel.h
+ * @file i_signal_channel.h
  * @author Pierre Venet
  * @brief
  * @version 0.1
@@ -14,32 +14,27 @@ namespace motor_controllers {
 namespace communication {
 
 /**
- * @brief Class to send a PWM signal
+ * @brief Class to represent a channel used to send a signal
  *
- * This class is an interface. It can be implemented for each chip.
+ * This class is an interface. It can be implemented for each type of channel on
+ * different chips.
  *
  *
  */
-class CommunicationChannel {
+class ISignalChannel {
  public:
-  CommunicationChannel();
+  ISignalChannel();
 
-  virtual ~CommunicationChannel() = default;
+  virtual ~ISignalChannel() = default;
 
  public:
-  /**
-   * @brief Set the PWM value to send.
-   *
-   * @param value the value range depends on the chip used.
-   */
-  virtual void setValue(float value) = 0;
 
   /**
    * @brief Inform the channel that the communication is closed.
    *
    * This will prevent from setting the values and set an internal flag.
    */
-  virtual void closeCommunication();
+  void closeCommunication();
 
   /**
    * @brief Flag if the communication was already closed.
@@ -47,11 +42,12 @@ class CommunicationChannel {
    * @return true if the communication was closed
    * @return false else
    */
-  virtual bool isCommunicationClosed();
+  bool isCommunicationClosed();
 
  private:
   bool isCommunicationOpen_;
 };
+
 }  // namespace communication
 
 }  // namespace motor_controllers

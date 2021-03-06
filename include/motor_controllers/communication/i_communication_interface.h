@@ -1,5 +1,5 @@
 /**
- * @file communication_interface.h
+ * @file i_communication_interface.h
  * @author Pierre Venet
  * @brief
  * @version 0.1
@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <motor_controllers/communication/communication_channel.h>
+#include <motor_controllers/communication/i_signal_channel.h>
 
 #include <functional>
 #include <memory>
@@ -25,16 +25,16 @@ namespace communication {
  * The classes which implement this interface only deal with the communication
  * to a given chip.
  *
- * Each chip can have one or more channels, on which the PWM signal is send.
+ * Each chip can have one or more channels of heterogenous types.
  * This class alone does not allow to send data to the channels of the chip. For
  * that, use the CommunicationChannelBuilder pattern which will allow you to
- * create CommunicationChannels which, in turn, can be used to send data to each
- * channel of the chip.
+ * create subclasses of ISignalChannel which, in turn, can be used to send
+ * differnt types of signal to each channel of the chip.
  *
  */
-class CommunicationInterface {
+class ICommunicationInterface {
  public:
-  virtual ~CommunicationInterface() = default;
+  virtual ~ICommunicationInterface() = default;
 
  public:
   /**
@@ -51,26 +51,6 @@ class CommunicationInterface {
    */
   virtual void stop() = 0;
 
-  /**
-   * @brief Set the frequency of the PWM signal.
-   *
-   * @param frequency in hertz
-   */
-  virtual void setPWMFrequency(float frequency) = 0;
-
-  /**
-   * @brief Get the minimum value that can be send as PWM signal.
-   *
-   * @return float
-   */
-  virtual float getMinValue() const = 0;
-
-  /**
-   * @brief Get the maximum value that can be send as PWM signal.
-   *
-   * @return float
-   */
-  virtual float getMaxValue() const = 0;
 };
 }  // namespace communication
 

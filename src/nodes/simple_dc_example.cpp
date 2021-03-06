@@ -40,7 +40,7 @@ int main(int, char*[]) {
   std::cout << "Starting controller" << std::endl;
 
   m1->set(BinarySignal::BINARY_HIGH);
-  m1->set(BinarySignal::BINARY_LOW);
+  m2->set(BinarySignal::BINARY_LOW);
   pwmA->setDutyCyle(2);
 
   while (isRunning) std::this_thread::sleep_for(std::chrono::milliseconds(100));

@@ -48,7 +48,21 @@ void BCM2835Interface::start() {
   }
 }
 
-void BCM2835Interface::stop() { bcm2835_close(); }
+void BCM2835Interface::stop() { 
+
+  for (auto& channel :
+       this->ChannelBuilder<BCM2835PWMChannel,
+                            BCM2835PWMChannel::Builder>::channels_) {
+    channel->setDutyCyle(0.0);
+  }
+
+  for (auto& channel :
+       this->ChannelBuilder<BCM2835BinaryChannel,
+                            BCM2835BinaryChannel::Builder>::channels_) {
+    channel->set(BinarySignal::BINARY_LOW);
+  }
+  bcm2835_close(); 
+  }
 
 void BCM2835Interface::setClockDivider(float frequency) {
   // Divides the basic 19.2MHz PWM clock.

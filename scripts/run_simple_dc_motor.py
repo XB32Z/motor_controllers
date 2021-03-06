@@ -104,9 +104,6 @@ class GPIOCommunication(object):
 
 if __name__ == "__main__":
 
-    PIN = 18
-    D1 = 12
-
     arg_parser = argparse.ArgumentParser(
         description="Program to test DC motors using GPIOs"
     )
@@ -130,7 +127,7 @@ if __name__ == "__main__":
 
     communication = GPIOCommunication()
 
-    with communication.connect(PIN) as motor_builder:
+    with communication.connect(18) as motor_builder:
         m1 = motor_builder.create_motor(args.pwma, args.m1, args.m2)
         m2 = motor_builder.create_motor(args.pwmb, args.m3, args.m4)
 

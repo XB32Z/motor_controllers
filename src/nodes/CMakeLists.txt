@@ -5,3 +5,10 @@ target_link_libraries(simple_servo_example PUBLIC motor_controllers_communicatio
 
 add_executable(simple_dc_example simple_dc_example.cpp)
 target_link_libraries(simple_dc_example PUBLIC motor_controllers_communication)
+
+add_executable(simple_read_pins simple_read_pins.cpp)
+target_link_libraries(simple_read_pins PUBLIC motor_controllers_communication)
+
+add_executable(simple_event_detect_pins simple_event_detect_pins.cpp)
+target_link_libraries(simple_event_detect_pins PUBLIC motor_controllers_communication)
+

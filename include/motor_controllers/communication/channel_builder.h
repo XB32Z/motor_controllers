@@ -39,10 +39,10 @@ namespace communication {
  * they are all "informed", which prevents them from attempting to write data
  * and prevents double freeing them.
  *
- * @tparam ChannelType The type of channel that this class will produce
- * @tparam ChannelBuilder The builder object used to create a ChannelType
+ * @tparam ChannelMode The type of channel that this class will produce
+ * @tparam ChannelBuilder The builder object used to create a ChannelMode
  */
-template <typename ChannelType, typename Builder>
+template <typename ChannelMode, typename Builder>
 class ChannelBuilder : public ICommunicationInterface {
  public:
   virtual ~ChannelBuilder() {
@@ -53,18 +53,18 @@ class ChannelBuilder : public ICommunicationInterface {
   }
 
  public:
-  std::unique_ptr<ChannelType, std::function<void(ChannelType*)>>
+  std::unique_ptr<ChannelMode, std::function<void(ChannelMode*)>>
   configureChannel(const Builder& channelBuilder) {
     // Call the method of the implementation of this class to get the properly
-    // configured ChannelType.
-    ChannelType* channel = this->createChannel(channelBuilder);
+    // configured ChannelMode.
+    ChannelMode* channel = this->createChannel(channelBuilder);
 
     this->channels_.emplace_back(channel);
 
     // Create the unique_ptr object. Upon destruction of channel, the lambda
     // expression is called.
-    std::unique_ptr<ChannelType, std::function<void(ChannelType*)>> res(
-        channel, [this](ChannelType* ptr) {
+    std::unique_ptr<ChannelMode, std::function<void(ChannelMode*)>> res(
+        channel, [this](ChannelMode* ptr) {
           if (!ptr->isCommunicationClosed()) {
             // if communication is closed, this object is already destroyed
             this->unregisterChannel(ptr);
@@ -77,21 +77,21 @@ class ChannelBuilder : public ICommunicationInterface {
 
  private:
   /**
-   * @brief Create a ChannelType object
+   * @brief Create a ChannelMode object
    *
    * Implement this method for the pattern to work.
    *
    * @param channel
-   * @return ChannelType*
+   * @return ChannelMode*
    */
-  virtual ChannelType* createChannel(const Builder& channel) = 0;
+  virtual ChannelMode* createChannel(const Builder& channel) = 0;
 
   /**
    * @brief Unregister a channel from the communication
    *
    * @param channel
    */
-  virtual void unregisterChannel(ChannelType* channel) {
+  virtual void unregisterChannel(ChannelMode* channel) {
     // This method is called when a unique_ptr managing a channel is destroyed.
     auto result =
         std::find_if(this->channels_.begin(), this->channels_.end(),
@@ -107,7 +107,7 @@ class ChannelBuilder : public ICommunicationInterface {
   }
 
  protected:
-  std::vector<ChannelType*> channels_;
+  std::vector<ChannelMode*> channels_;
 };
 
 }  // namespace communication

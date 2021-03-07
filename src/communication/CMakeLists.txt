@@ -7,6 +7,9 @@ option(BUILD_BCM2835_INTERFACE "Build the BCM2835 interface" ON)
 set(motor_controllers_communication_sources i_signal_channel.cpp)
 set(motor_controllers_communication_dependencies "")
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 if(BUILD_PCA9685_INTERFACE)
     find_package(i2c REQUIRED)
     list(APPEND motor_controllers_communication_sources pca9685_interface.cpp pca9685_channel.cpp)
@@ -28,7 +31,9 @@ target_include_directories(motor_controllers_communication
                            PUBLIC 
                                $<BUILD_INTERFACE:${motor_controllers_ROOT_DIR}/include>
                                 $<INSTALL_INTERFACE:include>)
-target_link_libraries(motor_controllers_communication PUBLIC ${motor_controllers_communication_dependencies})
+target_link_libraries(motor_controllers_communication 
+                      PUBLIC ${motor_controllers_communication_dependencies}
+                      PRIVATE Threads::Threads)
 target_compile_options(motor_controllers_communication PUBLIC ${SHARED_COMPILE_OPTIONS})
 
 install(TARGETS motor_controllers_communication

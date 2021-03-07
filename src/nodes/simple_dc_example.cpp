@@ -27,12 +27,12 @@ int main(int, char*[]) {
 
   BCM2835BinaryChannel::Builder m1Builder = BCM2835BinaryChannel::Builder();
   m1Builder.pinNumber = 6;
-  m1Builder.channelType = ChannelType::OUTPUT;
+  m1Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m1 = communication.configureChannel(m1Builder);
 
   BCM2835BinaryChannel::Builder m2Builder = BCM2835BinaryChannel::Builder();
   m2Builder.pinNumber = 13;
-  m2Builder.channelType = ChannelType::OUTPUT;
+  m2Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m2 = communication.configureChannel(m2Builder);
 
   communication.start();

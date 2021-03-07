@@ -14,6 +14,7 @@
 #include <stdint.h>
 
 #include <list>
+#include <thread>  // std::thread
 
 namespace motor_controllers {
 
@@ -27,7 +28,8 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
  public:
   struct Builder {
     uint8_t pinNumber;
-    ChannelType channelType;
+    ChannelMode channelMode;
+    BinarySignal eventDetectValue;
   };
 
  public:
@@ -39,12 +41,38 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
   ~BCM2835BinaryChannel();
 
   BCM2835BinaryChannel(const BCM2835BinaryChannel&) = delete;
-  
+
   BCM2835BinaryChannel& operator=(const BCM2835BinaryChannel&) = delete;
 
  public:
+  /**
+   * @brief Set the value if the channel is an OUTPUT
+   *
+   */
   virtual void set(const BinarySignal&) final override;
+
+  /**
+   * @brief Get the value if the channel is an INPUT or OUTPUT
+   *
+   * @return BinarySignal
+   */
   virtual BinarySignal get() final override;
+
+  /**
+   * @brief Get a future object with the detected event if channel is
+   * EVENT_DETECT
+   *
+   * @return std::future<bool>
+   */
+  virtual std::future<BinarySignal> asyncDetectEvent() final override;
+
+  /**
+   * @brief Starts a thread to check the event and call callback
+   *
+   * @param callback
+   */
+  virtual void onDetectEvent(
+      const std::function<void(void)>& callback) final override;
 
  public:
   /**
@@ -58,10 +86,12 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
 
   void setInternal(const BinarySignal&);
 
-
  private:
   const uint8_t pinNumber_;
-  const ChannelType channelType_;
+  const ChannelMode channelType_;
+  const BinarySignal eventDetectValue_;
+  std::thread detectEventThread_;
+  bool detectEventThreadAlive_;
 };
 }  // namespace communication
 }  // namespace motor_controllers

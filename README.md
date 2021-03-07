@@ -26,6 +26,17 @@ This controller is found on ready to use RaspberryPi hat to controller servo mot
 sudo apt install libcap2 libcap-dev
 ```
 
+#### BIOS setup
+BCM2835 edge detection feature seems to only work when one setup the bios. See https://github.com/raspberrypi/linux/issues/2550.
+
+ - On a RaspberryPi OS /boot/config.txt
+ - On a Ubuntu distribution (in my case Ubuntu20 on a RPi4) /boot/firmware/usercfg.txt 
+
+Add the line 
+```
+dtoverlay=gpio-no-irq
+```
+
 #### Requirements 
 The following dependencies need to be installed on the host:
 ```

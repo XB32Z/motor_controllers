@@ -63,6 +63,11 @@ std::future<void> BCM2835BinaryChannel::asyncDetectEvent() {
 
 void BCM2835BinaryChannel::onDetectEvent(
     const std::function<void(void)>& callback) {
+  if (this->detectEventThreadAlive_) {  // thread already running
+    this->detectEventThreadAlive_ = false;
+    this->detectEventThread_.join();
+  }
+  
   this->detectEventThreadAlive_ = true;
 
   this->detectEventThread_ = std::thread([this, &callback]() {

@@ -19,6 +19,7 @@ namespace communication {
 
 enum class BinarySignal : bool { BINARY_LOW = false, BINARY_HIGH = true };
 enum class ChannelMode { INPUT, OUTPUT, EVENT_DETECT };
+enum class EventDetectType { HIGH, LOW, RISING_EDGE, FALING_EDGE };
 /**
  * @brief Class to represent a channel used to send a signal
  *
@@ -63,7 +64,7 @@ class IBinarySignalChannel : public ISignalChannel {
    * If the channel is configured on EVENT_DETECT.
    *
    */
-  virtual std::future<BinarySignal> asyncDetectEvent() = 0;
+  virtual std::future<void> asyncDetectEvent() = 0;
 
   /**
    * @brief Create a thread and call the callback at every detected event

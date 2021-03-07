@@ -29,7 +29,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
   struct Builder {
     uint8_t pinNumber;
     ChannelMode channelMode;
-    BinarySignal eventDetectValue;
+    EventDetectType eventDetectValue;
   };
 
  public:
@@ -64,7 +64,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    *
    * @return std::future<bool>
    */
-  virtual std::future<BinarySignal> asyncDetectEvent() final override;
+  virtual std::future<void> asyncDetectEvent() final override;
 
   /**
    * @brief Starts a thread to check the event and call callback
@@ -89,7 +89,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
  private:
   const uint8_t pinNumber_;
   const ChannelMode channelType_;
-  const BinarySignal eventDetectValue_;
+  const EventDetectType eventDetectValue_;
   std::thread detectEventThread_;
   bool detectEventThreadAlive_;
 };

@@ -50,12 +50,12 @@ BinarySignal BCM2835BinaryChannel::get() {
                                                  : BinarySignal::BINARY_HIGH;
 }
 
-std::future<BinarySignal> BCM2835BinaryChannel::asyncDetectEvent() {
+std::future<void> BCM2835BinaryChannel::asyncDetectEvent() {
   return std::async([this]() {
     while (true) {
       if (bcm2835_gpio_eds(this->pinNumber_)) {
         bcm2835_gpio_set_eds(this->pinNumber_);
-        return this->eventDetectValue_;
+        return;
       }
     }
   });
@@ -87,15 +87,25 @@ void BCM2835BinaryChannel::initialize() {
   if (this->channelType_ == ChannelMode::INPUT) {
     bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
+
   } else if (this->channelType_ == ChannelMode::OUTPUT) {
     bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_OUTP);
+
   } else if (this->channelType_ == ChannelMode::EVENT_DETECT) {
     bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
-    if (this->eventDetectValue_ == BinarySignal::BINARY_LOW) {
-      bcm2835_gpio_len(this->pinNumber_);
-    } else {
+
+    if (this->eventDetectValue_ == EventDetectType::HIGH) {
       bcm2835_gpio_hen(this->pinNumber_);
+
+    } else if (this->eventDetectValue_ == EventDetectType::LOW) {
+      bcm2835_gpio_len(this->pinNumber_);
+
+    } else if (this->eventDetectValue_ == EventDetectType::RISING_EDGE) {
+      bcm2835_gpio_ren(this->pinNumber_);
+
+    } else if (this->eventDetectValue_ == EventDetectType::FALING_EDGE) {
+      bcm2835_gpio_fen(this->pinNumber_);
     }
   }
 }

@@ -21,13 +21,13 @@ int main(int, char*[]) {
   BCM2835BinaryChannel::Builder p2Builder = BCM2835BinaryChannel::Builder();
   p2Builder.pinNumber = 27;
   p2Builder.channelMode = ChannelMode::EVENT_DETECT;
-  p2Builder.eventDetectValue = BinarySignal::BINARY_HIGH;
+  p2Builder.eventDetectValue = EventDetectType::RISING_EDGE;
   BCM2835BinaryChannelRef p2 = communication.configureChannel(p2Builder);
 
   BCM2835BinaryChannel::Builder p3Builder = BCM2835BinaryChannel::Builder();
   p3Builder.pinNumber = 22;
   p3Builder.channelMode = ChannelMode::EVENT_DETECT;
-  p3Builder.eventDetectValue = BinarySignal::BINARY_HIGH;
+  p3Builder.eventDetectValue = EventDetectType::FALING_EDGE;
   BCM2835BinaryChannelRef p3 = communication.configureChannel(p3Builder);
 
   communication.start();

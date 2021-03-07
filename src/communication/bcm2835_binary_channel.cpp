@@ -95,16 +95,16 @@ void BCM2835BinaryChannel::initialize() {
     bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
     bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
 
-    if (this->eventDetectValue_ == EventDetectType::HIGH) {
+    if (this->eventDetectValue_ == EventDetectType::EVENT_HIGH) {
       bcm2835_gpio_hen(this->pinNumber_);
 
-    } else if (this->eventDetectValue_ == EventDetectType::LOW) {
+    } else if (this->eventDetectValue_ == EventDetectType::EVENT_LOW) {
       bcm2835_gpio_len(this->pinNumber_);
 
-    } else if (this->eventDetectValue_ == EventDetectType::RISING_EDGE) {
+    } else if (this->eventDetectValue_ == EventDetectType::EVENT_RISING_EDGE) {
       bcm2835_gpio_ren(this->pinNumber_);
 
-    } else if (this->eventDetectValue_ == EventDetectType::FALING_EDGE) {
+    } else if (this->eventDetectValue_ == EventDetectType::EVENT_FALING_EDGE) {
       bcm2835_gpio_fen(this->pinNumber_);
     }
   }

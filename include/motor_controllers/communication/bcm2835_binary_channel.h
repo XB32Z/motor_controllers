@@ -64,7 +64,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    *
    * @return std::future<bool>
    */
-  virtual std::future<void> asyncDetectEvent() final override;
+  virtual std::future<BinarySignal> asyncDetectEvent() final override;
 
   /**
    * @brief Starts a thread to check the event and call callback
@@ -72,7 +72,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    * @param callback
    */
   virtual void onDetectEvent(
-      const std::function<void(void)>& callback) final override;
+      const std::function<void(BinarySignal)>& callback) final override;
 
  public:
   /**
@@ -84,7 +84,16 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    */
   void initialize();
 
+ private:
   void setInternal(const BinarySignal&);
+
+  void reset();
+
+  void setupInput();
+
+  void setupOutput();
+
+  void setupEventDetection(const EventDetectType&);
 
  private:
   const uint8_t pinNumber_;

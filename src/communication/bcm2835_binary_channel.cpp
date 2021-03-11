@@ -46,38 +46,54 @@ BinarySignal BCM2835BinaryChannel::get() {
   }
 
   // Can read whether pin is input or output
-  return bcm2835_gpio_lev(this->pinNumber_) == 0 ? BinarySignal::BINARY_LOW
-                                                 : BinarySignal::BINARY_HIGH;
+  return bcm2835_gpio_lev(this->pinNumber_) ? BinarySignal::BINARY_LOW
+                                            : BinarySignal::BINARY_HIGH;
 }
 
-std::future<void> BCM2835BinaryChannel::asyncDetectEvent() {
+std::future<BinarySignal> BCM2835BinaryChannel::asyncDetectEvent() {
+  // TODO add checks on closed communication
   return std::async([this]() {
-    while (true) {
-      if (bcm2835_gpio_eds(this->pinNumber_)) {
-        bcm2835_gpio_set_eds(this->pinNumber_);
-        return;
-      }
-    }
+    bcm2835_gpio_set_eds(this->pinNumber_);
+    while (!bcm2835_gpio_eds(this->pinNumber_))
+      ;
+    return bcm2835_gpio_lev(this->pinNumber_) ? BinarySignal::BINARY_LOW
+                                              : BinarySignal::BINARY_HIGH;
   });
 }
 
 void BCM2835BinaryChannel::onDetectEvent(
-    const std::function<void(void)>& callback) {
+    const std::function<void(BinarySignal)>& callback) {
+  // TODO add checks on closed communication
+
   if (this->detectEventThreadAlive_) {  // thread already running
     this->detectEventThreadAlive_ = false;
     this->detectEventThread_.join();
   }
-  
+
   this->detectEventThreadAlive_ = true;
 
   this->detectEventThread_ = std::thread([this, &callback]() {
     while (this->detectEventThreadAlive_) {
-      if (bcm2835_gpio_eds(this->pinNumber_)) {
-        bcm2835_gpio_set_eds(this->pinNumber_);
-        callback();
-      }
+      bcm2835_gpio_set_eds(this->pinNumber_);
+      while (!bcm2835_gpio_eds(this->pinNumber_))
+        ;
+      callback(bcm2835_gpio_lev(this->pinNumber_) ? BinarySignal::BINARY_LOW
+                                                  : BinarySignal::BINARY_HIGH);
     }
   });
+}
+
+void BCM2835BinaryChannel::initialize() {
+  this->reset();
+
+  if (this->channelType_ == ChannelMode::INPUT) {
+    this->setupInput();
+  } else if (this->channelType_ == ChannelMode::OUTPUT) {
+    this->setupOutput();
+  } else if (this->channelType_ == ChannelMode::EVENT_DETECT) {
+    this->setupInput();
+    this->setupEventDetection(this->eventDetectValue_);
+  }
 }
 
 void BCM2835BinaryChannel::setInternal(const BinarySignal& value) {
@@ -88,32 +104,48 @@ void BCM2835BinaryChannel::setInternal(const BinarySignal& value) {
   }
 }
 
-void BCM2835BinaryChannel::initialize() {
-  if (this->channelType_ == ChannelMode::INPUT) {
-    bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
-    bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
-
-  } else if (this->channelType_ == ChannelMode::OUTPUT) {
-    bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_OUTP);
-
-  } else if (this->channelType_ == ChannelMode::EVENT_DETECT) {
-    bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
-    bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
-
-    if (this->eventDetectValue_ == EventDetectType::EVENT_HIGH) {
-      bcm2835_gpio_hen(this->pinNumber_);
-
-    } else if (this->eventDetectValue_ == EventDetectType::EVENT_LOW) {
-      bcm2835_gpio_len(this->pinNumber_);
-
-    } else if (this->eventDetectValue_ == EventDetectType::EVENT_RISING_EDGE) {
-      bcm2835_gpio_ren(this->pinNumber_);
-
-    } else if (this->eventDetectValue_ == EventDetectType::EVENT_FALING_EDGE) {
-      bcm2835_gpio_fen(this->pinNumber_);
-    }
-  }
+void BCM2835BinaryChannel::reset() {
+  bcm2835_gpio_clr(this->pinNumber_);
+  bcm2835_gpio_clr_ren(this->pinNumber_);
+  bcm2835_gpio_clr_fen(this->pinNumber_);
+  bcm2835_gpio_clr_hen(this->pinNumber_);
+  bcm2835_gpio_clr_len(this->pinNumber_);
+  bcm2835_gpio_clr_aren(this->pinNumber_);
+  bcm2835_gpio_clr_afen(this->pinNumber_);
 }
 
+void BCM2835BinaryChannel::setupInput() {
+  bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_INPT);
+  bcm2835_gpio_set_pud(this->pinNumber_, BCM2835_GPIO_PUD_UP);
+}
+
+void BCM2835BinaryChannel::setupOutput() {
+  bcm2835_gpio_fsel(this->pinNumber_, BCM2835_GPIO_FSEL_OUTP);
+}
+
+void BCM2835BinaryChannel::setupEventDetection(
+    const EventDetectType& eventDetectValue) {
+  switch (eventDetectValue) {
+    case EventDetectType::EVENT_HIGH:
+      bcm2835_gpio_hen(this->pinNumber_);
+      break;
+    case EventDetectType::EVENT_LOW:
+      bcm2835_gpio_len(this->pinNumber_);
+      break;
+    case EventDetectType::EVENT_RISING_EDGE:
+      bcm2835_gpio_ren(this->pinNumber_);
+      break;
+    case EventDetectType::EVENT_FALING_EDGE:
+      bcm2835_gpio_fen(this->pinNumber_);
+      break;
+    case EventDetectType::EVENT_BOTH_EDGES:
+      bcm2835_gpio_ren(this->pinNumber_);
+      bcm2835_gpio_fen(this->pinNumber_);
+      break;
+
+    default:
+      break;
+  }
+}
 }  // namespace communication
 }  // namespace motor_controllers

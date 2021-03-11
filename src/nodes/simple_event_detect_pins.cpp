@@ -38,13 +38,13 @@ int main(int, char*[]) {
   std::cout << "Starting controller" << std::endl;
 
   // Start a thread on P2 and print the value
-  p2->onDetectEvent([]() { std::cout << "Detect event on P2" << std::endl; });
+  p2->onDetectEvent([](BinarySignal s) { std::cout << "Detect event on P2 with value " << bool(s) << std::endl; });
 
   // Use async on P3
   while (isRunning) {
     auto fut3 = p3->asyncDetectEvent();
-    fut3.get();
-    std::cout << "Detected event on P3" << std::endl;
+    auto val = fut3.get();
+    std::cout << "Detected event on P3 with value " << bool(val) << std::endl;
   }
 
   std::cout << "Stopping controller" << std::endl;

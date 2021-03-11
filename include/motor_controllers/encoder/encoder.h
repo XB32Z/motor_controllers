@@ -1,9 +1,22 @@
+/**
+ * @file encoder.h
+ * @author Pierre Venet
+ * @brief
+ * @version 0.1
+ * @date 2021-03-11
+ *
+ * @copyright Copyright (c) 2021
+ *
+ */
 #include <motor_controllers/communication/i_binary_signal_channel.h>
+
+#include <mutex>
+#include <thread>
 
 namespace motor_controllers {
 namespace encoder {
 
-enum class Direction { STOP = 0, FORWARD = 1, BACKWARD = 2 };
+enum class Direction { STOP = 0, FORWARD = 1, BACKWARD = 2, INVALID = 3 };
 
 /**
  * @brief Encoder class
@@ -30,12 +43,25 @@ class Encoder {
   ~Encoder() = default;
 
  public:
-  float getSpeed();
+  float getSpeed() const;
 
-  Direction getDirection();
+  Direction getDirection() const;
+
+ public:
+  void start();
+
+  void stop();
+
+ private:
+  void measureSpeed();
 
  private:
   std::unique_ptr<communication::IBinarySignalChannel> channelA, channelB;
+  mutable std::mutex mtx_;
+  bool running_;
+  std::thread thread_;
+  float speed_;
+  Direction direction_;
 };
 
 }  // namespace encoder

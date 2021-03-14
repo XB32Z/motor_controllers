@@ -12,7 +12,7 @@ if(NOT CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(SHARED_COMPILE_OPTIONS -Wall -Wextra -Wpedantic)
+  set(SHARED_COMPILE_OPTIONS -Wall -Wextra -Wpedantic -O3)
 endif()
 
 

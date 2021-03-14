@@ -29,7 +29,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
   struct Builder {
     uint8_t pinNumber;
     ChannelMode channelMode;
-    BinarySignal eventDetectValue;
+    EventDetectType eventDetectValue;
   };
 
  public:
@@ -38,7 +38,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    */
   BCM2835BinaryChannel(const Builder& builder);
 
-  ~BCM2835BinaryChannel();
+  virtual ~BCM2835BinaryChannel();
 
   BCM2835BinaryChannel(const BCM2835BinaryChannel&) = delete;
 
@@ -49,30 +49,40 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    * @brief Set the value if the channel is an OUTPUT
    *
    */
-  virtual void set(const BinarySignal&) final override;
+  void set(const BinarySignal&) final override;
 
   /**
    * @brief Get the value if the channel is an INPUT or OUTPUT
    *
    * @return BinarySignal
    */
-  virtual BinarySignal get() final override;
+  BinarySignal get() final override;
 
   /**
    * @brief Get a future object with the detected event if channel is
    * EVENT_DETECT
    *
-   * @return std::future<bool>
+   * Can be stoped with interuptEventDetection.
+   *
+   * @return std::future<BinarySignal>
    */
-  virtual std::future<BinarySignal> asyncDetectEvent() final override;
+  std::future<BinarySignal> asyncDetectEvent() final override;
 
   /**
-   * @brief Starts a thread to check the event and call callback
+   * @brief Starts a thread to check the event and call callback.
+   *
+   * Can be stoped with interuptEventDetection.
    *
    * @param callback
    */
-  virtual void onDetectEvent(
-      const std::function<void(void)>& callback) final override;
+  void onDetectEvent(
+      const std::function<void(BinarySignal)>& callback) final override;
+
+  /**
+   * @brief Stops the thread or async waiting for event
+   *
+   */
+  void interuptEventDetection() final override;
 
  public:
   /**
@@ -84,14 +94,27 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
    */
   void initialize();
 
+  /**
+   * @brief Clean the channel
+   *
+   */
+  void clean();
+
+ private:
   void setInternal(const BinarySignal&);
+
+  void setupInput();
+
+  void setupOutput();
+
+  void setupEventDetection(const EventDetectType&);
 
  private:
   const uint8_t pinNumber_;
-  const ChannelMode channelType_;
-  const BinarySignal eventDetectValue_;
+  const EventDetectType eventDetectValue_;
   std::thread detectEventThread_;
   bool detectEventThreadAlive_;
+  bool detectEventAsyncAlive_;
 };
 }  // namespace communication
 }  // namespace motor_controllers

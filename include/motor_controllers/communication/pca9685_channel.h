@@ -1,12 +1,12 @@
 /**
  * @file pca9685_channel.h
  * @author Pierre Venet
- * @brief 
+ * @brief
  * @version 0.1
  * @date 2021-03-05
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -40,7 +40,7 @@ class PCA9685Channel : public IPWMSignalChannel {
   ~PCA9685Channel() = default;
 
   PCA9685Channel(const PCA9685Channel&) = delete;
-  
+
   PCA9685Channel& operator=(const PCA9685Channel&) = delete;
 
  public:
@@ -49,7 +49,7 @@ class PCA9685Channel : public IPWMSignalChannel {
    *
    * @param frequency in hertz
    */
-  virtual void setPWMFrequency(float frequency) final override;
+  void setPWMFrequency(float frequency) final override;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -60,7 +60,7 @@ class PCA9685Channel : public IPWMSignalChannel {
    * @param start start of the signal on the period
    * @param end end of the signal on the period
    */
-  virtual void setPWM(float start, float end) final override;
+  void setPWM(float start, float end) final override;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -71,21 +71,21 @@ class PCA9685Channel : public IPWMSignalChannel {
    *
    * @param dutyCycle a number between 0 and 1
    */
-  virtual void setDutyCyle(float dutyCycle) final override;
+  void setDutyCyle(float dutyCycle) final override;
 
   /**
    * @brief Get the minimum value that can be send as PWM signal.
    *
    * @return float
    */
-  virtual float getMinValue() const final override;
+  float getMinValue() const final override;
 
   /**
    * @brief Get the maximum value that can be send as PWM signal.
    *
    * @return float
    */
-  virtual float getMaxValue() const final override;
+  float getMaxValue() const final override;
 
  private:
   uint8_t channel_;

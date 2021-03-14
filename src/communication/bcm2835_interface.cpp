@@ -63,7 +63,12 @@ void BCM2835Interface::stop() {
   for (auto& channel :
        this->ChannelBuilder<BCM2835BinaryChannel,
                             BCM2835BinaryChannel::Builder>::channels_) {
-    channel->set(BinarySignal::BINARY_LOW);
+    if (channel->getChannelMode() == ChannelMode::OUTPUT) {
+      channel->set(BinarySignal::BINARY_LOW);
+    } else if (channel->getChannelMode() == ChannelMode::EVENT_DETECT) {
+      channel->interuptEventDetection();
+      channel->clean();
+    }
   }
   bcm2835_close();
   this->running_ = false;

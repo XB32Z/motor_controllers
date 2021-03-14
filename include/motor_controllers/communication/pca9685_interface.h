@@ -110,7 +110,7 @@ class PCA9685Interface
    */
   void setFrequency();
 
-  virtual PCA9685Channel* createChannel(
+  PCA9685Channel* createChannel(
       const PCA9685Channel::Builder& channelBuilder) final override;
 
  private:

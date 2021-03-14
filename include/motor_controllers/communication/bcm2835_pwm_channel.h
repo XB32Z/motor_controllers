@@ -42,7 +42,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
   ~BCM2835PWMChannel();
 
   BCM2835PWMChannel(const BCM2835PWMChannel&) = delete;
-  
+
   BCM2835PWMChannel& operator=(const BCM2835PWMChannel&) = delete;
 
  public:
@@ -51,7 +51,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
    *
    * @param frequency in hertz
    */
-  virtual void setPWMFrequency(float frequency) final override;
+  void setPWMFrequency(float frequency) final override;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -62,7 +62,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
    * @param start start of the signal on the period
    * @param end end of the signal on the period
    */
-  virtual void setPWM(float start, float end) final override;
+  void setPWM(float start, float end) final override;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -73,21 +73,21 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
    *
    * @param dutyCycle a number between 0 and 1
    */
-  virtual void setDutyCyle(float dutyCycle) final override;
+  void setDutyCyle(float dutyCycle) final override;
 
   /**
    * @brief Get the minimum value that can be send as PWM signal.
    *
    * @return float
    */
-  virtual float getMinValue() const final override;
+  float getMinValue() const final override;
 
   /**
    * @brief Get the maximum value that can be send as PWM signal.
    *
    * @return float
    */
-  virtual float getMaxValue() const final override;
+  float getMaxValue() const final override;
 
  public:
   /**

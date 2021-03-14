@@ -18,7 +18,12 @@ bool ISignalChannel::isCommunicationClosed() {
 
 IPWMSignalChannel::IPWMSignalChannel() : ISignalChannel() {}
 
-IBinarySignalChannel::IBinarySignalChannel() : ISignalChannel() {}
+IBinarySignalChannel::IBinarySignalChannel(const ChannelMode& mode)
+    : ISignalChannel(), channelType_(mode) {}
+
+const ChannelMode& IBinarySignalChannel::getChannelMode() const {
+  return this->channelType_;
+}
 
 }  // namespace communication
 

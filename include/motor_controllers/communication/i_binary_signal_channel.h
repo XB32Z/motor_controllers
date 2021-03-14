@@ -19,6 +19,13 @@ namespace communication {
 
 enum class BinarySignal : bool { BINARY_LOW = false, BINARY_HIGH = true };
 enum class ChannelMode { INPUT, OUTPUT, EVENT_DETECT };
+enum class EventDetectType {
+  EVENT_HIGH,
+  EVENT_LOW,
+  EVENT_RISING_EDGE,
+  EVENT_FALING_EDGE,
+  EVENT_BOTH_EDGES
+};
 /**
  * @brief Class to represent a channel used to send a signal
  *
@@ -34,7 +41,23 @@ enum class ChannelMode { INPUT, OUTPUT, EVENT_DETECT };
  */
 class IBinarySignalChannel : public ISignalChannel {
  public:
-  IBinarySignalChannel();
+  /**
+   * @brief Declare a generic pointer to the channel
+   *
+   * The channel should always be stored in a unique_ptr to avoid accidently
+   * sharing them, and by this, accessing them concurently. Furthermore, to keep
+   * track of them from the ICommunicationInterface, they come with a deletter,
+   * in charger of the memory tracking.
+   *
+   */
+  typedef std::unique_ptr<IBinarySignalChannel,
+                          std::function<void(IBinarySignalChannel*)>>
+      Ref;
+
+ public:
+  IBinarySignalChannel() = delete;
+
+  IBinarySignalChannel(const ChannelMode&);
 
   virtual ~IBinarySignalChannel() = default;
 
@@ -70,7 +93,24 @@ class IBinarySignalChannel : public ISignalChannel {
    *
    * @param callback
    */
-  virtual void onDetectEvent(const std::function<void(void)>& callback) = 0;
+  virtual void onDetectEvent(
+      const std::function<void(BinarySignal)>& callback) = 0;
+
+  /**
+   * @brief Stops the thread or async waiting for event.
+   *
+   */
+  virtual void interuptEventDetection() = 0;
+
+  /**
+   * @brief Get the channel's mode
+   *
+   * @return ChannelMode
+   */
+  const ChannelMode& getChannelMode() const;
+
+ protected:
+  const ChannelMode channelType_;
 };
 
 }  // namespace communication

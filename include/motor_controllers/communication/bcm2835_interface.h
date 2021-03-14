@@ -21,10 +21,9 @@ namespace motor_controllers {
 
 namespace communication {
 using BCM2835PWMChannelRef =
-    std::unique_ptr<BCM2835PWMChannel, std::function<void(BCM2835PWMChannel*)>>;
+    std::unique_ptr<BCM2835PWMChannel, std::function<void(ISignalChannel*)>>;
 using BCM2835BinaryChannelRef =
-    std::unique_ptr<BCM2835BinaryChannel,
-                    std::function<void(BCM2835BinaryChannel*)>>;
+    std::unique_ptr<BCM2835BinaryChannel, std::function<void(ISignalChannel*)>>;
 
 /**
  * @brief Communication class with the BCM2835 chip.
@@ -74,10 +73,10 @@ class BCM2835Interface
  private:
   void setClockDivider(float frequency);
 
-  virtual BCM2835PWMChannel* createChannel(
+  BCM2835PWMChannel* createChannel(
       const BCM2835PWMChannel::Builder& channel) final override;
 
-  virtual BCM2835BinaryChannel* createChannel(
+  BCM2835BinaryChannel* createChannel(
       const BCM2835BinaryChannel::Builder& channel) final override;
 
  private:

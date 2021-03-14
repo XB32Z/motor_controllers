@@ -53,7 +53,7 @@ class ChannelBuilder : public ICommunicationInterface {
   }
 
  public:
-  std::unique_ptr<ChannelMode, std::function<void(ChannelMode*)>>
+  std::unique_ptr<ChannelMode, std::function<void(ISignalChannel*)>>
   configureChannel(const Builder& channelBuilder) {
     // Call the method of the implementation of this class to get the properly
     // configured ChannelMode.
@@ -63,8 +63,8 @@ class ChannelBuilder : public ICommunicationInterface {
 
     // Create the unique_ptr object. Upon destruction of channel, the lambda
     // expression is called.
-    std::unique_ptr<ChannelMode, std::function<void(ChannelMode*)>> res(
-        channel, [this](ChannelMode* ptr) {
+    std::unique_ptr<ChannelMode, std::function<void(ISignalChannel*)>> res(
+        channel, [this](ISignalChannel* ptr) {
           if (!ptr->isCommunicationClosed()) {
             // if communication is closed, this object is already destroyed
             this->unregisterChannel(ptr);
@@ -91,7 +91,7 @@ class ChannelBuilder : public ICommunicationInterface {
    *
    * @param channel
    */
-  virtual void unregisterChannel(ChannelMode* channel) {
+  virtual void unregisterChannel(ISignalChannel* channel) {
     // This method is called when a unique_ptr managing a channel is destroyed.
     auto result =
         std::find_if(this->channels_.begin(), this->channels_.end(),

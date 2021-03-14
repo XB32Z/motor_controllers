@@ -19,19 +19,19 @@ int main(int, char*[]) {
   BCM2835Interface communication = BCM2835Interface();
 
   BCM2835PWMChannel::Builder pwmABuilder = BCM2835PWMChannel::Builder();
-  pwmABuilder.pinNumber = 12;
+  pwmABuilder.pinNumber = 26;
   pwmABuilder.channel = 0;
   pwmABuilder.range = 1024;
   BCM2835PWMChannelRef pwmA = communication.configureChannel(pwmABuilder);
   pwmA->setPWMFrequency(11718.75);
 
   BCM2835BinaryChannel::Builder m1Builder = BCM2835BinaryChannel::Builder();
-  m1Builder.pinNumber = 6;
+  m1Builder.pinNumber = 20;
   m1Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m1 = communication.configureChannel(m1Builder);
 
   BCM2835BinaryChannel::Builder m2Builder = BCM2835BinaryChannel::Builder();
-  m2Builder.pinNumber = 13;
+  m2Builder.pinNumber = 21;
   m2Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m2 = communication.configureChannel(m2Builder);
 

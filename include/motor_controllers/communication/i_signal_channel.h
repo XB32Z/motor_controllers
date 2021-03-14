@@ -10,6 +10,9 @@
  */
 #pragma once
 
+#include <functional>  // std::function
+#include <memory>      // std::unique_ptr
+
 namespace motor_controllers {
 namespace communication {
 
@@ -23,12 +26,24 @@ namespace communication {
  */
 class ISignalChannel {
  public:
+  /**
+   * @brief Declare a generic pointer to the channel
+   *
+   * The channel should always be stored in a unique_ptr to avoid accidently
+   * sharing them, and by this, accessing them concurently. Furthermore, to keep
+   * track of them from the ICommunicationInterface, they come with a deletter,
+   * in charger of the memory tracking.
+   *
+   */
+  typedef std::unique_ptr<ISignalChannel, std::function<void(ISignalChannel*)>>
+      Ref;
+
+ public:
   ISignalChannel();
 
   virtual ~ISignalChannel() = default;
 
  public:
-
   /**
    * @brief Inform the channel that the communication is closed.
    *

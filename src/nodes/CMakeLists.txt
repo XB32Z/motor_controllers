@@ -12,3 +12,6 @@ target_link_libraries(simple_read_pins PUBLIC motor_controllers_communication)
 add_executable(simple_event_detect_pins simple_event_detect_pins.cpp)
 target_link_libraries(simple_event_detect_pins PUBLIC motor_controllers_communication)
 
+add_executable(simple_encoder_example simple_encoder_example.cpp)
+target_link_libraries(simple_encoder_example PUBLIC motor_controllers_communication motor_controller_encoder)
+

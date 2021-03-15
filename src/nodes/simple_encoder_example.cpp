@@ -47,7 +47,6 @@ int main(int, char*[]) {
 
   std::cout << "Starting controller" << std::endl;
 
-  // Use async on P3
   while (isRunning) {
     float speed = encoder.getSpeed() * 60.0;
     Direction direction = encoder.getDirection();

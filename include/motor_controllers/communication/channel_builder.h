@@ -1,5 +1,5 @@
 /**
- * @file communication_channel_builder.h
+ * @file channel_builder.h
  * @author Pierre Venet
  * @brief
  * @version 0.1
@@ -10,11 +10,11 @@
  */
 #pragma once
 
-#include <motor_controllers/communication/communication_interface.h>
+#include <motor_controllers/communication/i_communication_interface.h>
 
 #include <algorithm>
 #include <functional>
-#include <map>
+#include <vector>
 
 namespace motor_controllers {
 namespace communication {
@@ -39,34 +39,32 @@ namespace communication {
  * they are all "informed", which prevents them from attempting to write data
  * and prevents double freeing them.
  *
- * @tparam ChannelType
+ * @tparam ChannelMode The type of channel that this class will produce
+ * @tparam ChannelBuilder The builder object used to create a ChannelMode
  */
-template <typename ChannelType>
-class CommunicationChannelBuilder : public CommunicationInterface {
+template <typename ChannelMode, typename Builder>
+class ChannelBuilder : public ICommunicationInterface {
  public:
-  virtual ~CommunicationChannelBuilder() {
+  virtual ~ChannelBuilder() {
     // Close all the channels which are not yet deregistered.
     for (auto& channel : this->channels_) {
-      channel.second->closeCommunication();
+      channel->closeCommunication();
     }
   }
 
  public:
-  std::unique_ptr<ChannelType, std::function<void(ChannelType*)>>
-  configureChannel(uint8_t channelNumber) {
-    if (this->channels_.find(channelNumber) != this->channels_.end())
-      throw std::runtime_error("Channel already configured");
-
+  std::unique_ptr<ChannelMode, std::function<void(ISignalChannel*)>>
+  configureChannel(const Builder& channelBuilder) {
     // Call the method of the implementation of this class to get the properly
-    // configured ChannelType.
-    ChannelType* channel = this->createChannel(channelNumber);
+    // configured ChannelMode.
+    ChannelMode* channel = this->createChannel(channelBuilder);
 
-    this->channels_.emplace(channelNumber, channel);
+    this->channels_.emplace_back(channel);
 
     // Create the unique_ptr object. Upon destruction of channel, the lambda
     // expression is called.
-    std::unique_ptr<ChannelType, std::function<void(ChannelType*)>> res(
-        channel, [this](ChannelType* ptr) {
+    std::unique_ptr<ChannelMode, std::function<void(ISignalChannel*)>> res(
+        channel, [this](ISignalChannel* ptr) {
           if (!ptr->isCommunicationClosed()) {
             // if communication is closed, this object is already destroyed
             this->unregisterChannel(ptr);
@@ -79,26 +77,25 @@ class CommunicationChannelBuilder : public CommunicationInterface {
 
  private:
   /**
-   * @brief Create a ChannelType object
-   * 
+   * @brief Create a ChannelMode object
+   *
    * Implement this method for the pattern to work.
    *
    * @param channel
-   * @return ChannelType*
+   * @return ChannelMode*
    */
-  virtual ChannelType* createChannel(uint8_t channel) = 0;
+  virtual ChannelMode* createChannel(const Builder& channel) = 0;
 
   /**
    * @brief Unregister a channel from the communication
-   * 
-   * @param channel 
+   *
+   * @param channel
    */
-  virtual void unregisterChannel(ChannelType* channel) {
+  virtual void unregisterChannel(ISignalChannel* channel) {
     // This method is called when a unique_ptr managing a channel is destroyed.
-    auto result = std::find_if(this->channels_.begin(), this->channels_.end(),
-                               [channel](const auto& mapChannel) {
-                                 return mapChannel.second == channel;
-                               });
+    auto result =
+        std::find_if(this->channels_.begin(), this->channels_.end(),
+                     [channel](const auto& entry) { return entry == channel; });
 
     if (result != this->channels_.end()) {
       channel->closeCommunication();
@@ -110,8 +107,9 @@ class CommunicationChannelBuilder : public CommunicationInterface {
   }
 
  protected:
-  std::map<uint8_t, ChannelType*> channels_;
+  std::vector<ChannelMode*> channels_;
 };
+
 }  // namespace communication
 
 }  // namespace motor_controllers

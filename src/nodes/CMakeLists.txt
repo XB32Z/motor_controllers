@@ -1,4 +1,1 @@
 project(motor_controllers_nodes)
-
-add_executable(simple_servo_example simple_servo_example.cpp)
-target_link_libraries(simple_servo_example PUBLIC motor_controllers_communication)

@@ -5,7 +5,7 @@ extern "C" {
 #include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
 }
-#include <motor_controllers/communication/pca9685_communication.h>
+#include <motor_controllers/communication/pca9685_interface.h>
 #include <sys/ioctl.h>
 
 #include <algorithm>
@@ -89,10 +89,9 @@ namespace motor_controllers {
 
 namespace communication {
 
-PCA9685Communication::PCA9685Communication(const std::string& port,
-                                           int i2cAdress)
+PCA9685Interface::PCA9685Interface(const std::string& port, int i2cAdress)
     : oscillatorFrequency_(2.7 * 10e6),
-      pwmFrequency_(1600.0),
+      pwmFrequency_(3600.f),
       externalClock_(false) {
   this->file_ = open(port.c_str(), O_RDWR);
   if (ioctl(this->file_, I2C_SLAVE, i2cAdress) < 0) {
@@ -101,15 +100,16 @@ PCA9685Communication::PCA9685Communication(const std::string& port,
   }
 }
 
-PCA9685Communication::~PCA9685Communication() {
+PCA9685Interface::~PCA9685Interface() {
   for (auto& channel : this->channels_) {
     channel.second->closeCommunication();
   }
   close(this->file_);
 }
 
-void PCA9685Communication::start() {
+void PCA9685Interface::start() {
   this->setFrequency();
+  //  set it upon start!
   this->restart();
 
   // Setup as totem pole structure
@@ -126,7 +126,7 @@ void PCA9685Communication::start() {
   i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 3, 0);
 }
 
-void PCA9685Communication::stop() {
+void PCA9685Interface::stop() {
   // Set all channels to 0
   i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL, 0);
   i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 1, 0);
@@ -134,25 +134,13 @@ void PCA9685Communication::stop() {
   i2c_smbus_write_byte_data(this->file_, CHANNEL_ALL + 3, 0);
 }
 
-void PCA9685Communication::setPWMFrequency(float frequency) {
-  this->pwmFrequency_ = frequency;
-}
-
-void PCA9685Communication::setOscillatorFrequency(float frequency,
-                                                  bool externalClock) {
+void PCA9685Interface::setOscillatorFrequency(float frequency,
+                                              bool externalClock) {
   this->oscillatorFrequency_ = frequency;
   this->externalClock_ = externalClock;
 }
 
-float PCA9685Communication::getMinValue() const {
-  return static_cast<float>(0x0000);
-}
-
-float PCA9685Communication::getMaxValue() const {
-  return static_cast<float>(0x0FFF);
-}
-
-void PCA9685Communication::restart() {
+void PCA9685Interface::restart() {
   __s32 data = i2c_smbus_read_byte_data(this->file_, MODE1);
   if ((data & MODE1_RESTART_VAL) >> MODE1_RESTART) {
     this->sleep();
@@ -161,7 +149,7 @@ void PCA9685Communication::restart() {
   i2c_smbus_write_byte_data(this->file_, MODE1, data | MODE1_RESTART_VAL);
 }
 
-void PCA9685Communication::sleep() {
+void PCA9685Interface::sleep() {
   // read current MODE1
   __s32 sleepOrAwake = i2c_smbus_read_byte_data(this->file_, MODE1);
   // set SLEEP bit of the current model to 1
@@ -170,7 +158,7 @@ void PCA9685Communication::sleep() {
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
-void PCA9685Communication::wake() {
+void PCA9685Interface::wake() {
   // read current MODE1
   __s32 sleepOrAwake = i2c_smbus_read_byte_data(this->file_, MODE1);
   // set SLEEP bit of the current model to 0
@@ -180,7 +168,7 @@ void PCA9685Communication::wake() {
   std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
-void PCA9685Communication::setInternalClockFrequency(uint8_t prescale) {
+void PCA9685Interface::setInternalClockFrequency(uint8_t prescale) {
   __s32 data = i2c_smbus_read_byte_data(this->file_, MODE1);
 
   // Set sleep without restart
@@ -199,7 +187,7 @@ void PCA9685Communication::setInternalClockFrequency(uint8_t prescale) {
                             data | MODE1_RESTART | MODE1_AI);
 }
 
-void PCA9685Communication::setExternalClockFrequency(uint8_t prescale) {
+void PCA9685Interface::setExternalClockFrequency(uint8_t prescale) {
   __s32 data = i2c_smbus_read_byte_data(this->file_, MODE1);
 
   // Set sleep without restart
@@ -221,12 +209,16 @@ void PCA9685Communication::setExternalClockFrequency(uint8_t prescale) {
       (dataSleepNoRestart & ~MODE1_SLEEP) | MODE1_RESTART | MODE1_AI);
 }
 
-void PCA9685Communication::setChannelValue(uint8_t channel, uint8_t* values) {
+void PCA9685Interface::setChannelValue(uint8_t channel, uint8_t* values) {
   i2c_smbus_write_i2c_block_data(this->file_, CHANNEL_0 + (channel * 4), 4,
                                  values);
 }
 
-void PCA9685Communication::setFrequency() {
+void PCA9685Interface::setPWMFrequency(float pwmFrequency) {
+  this->pwmFrequency_ = pwmFrequency;
+}
+
+void PCA9685Interface::setFrequency() {
   float frequency = std::min(std::max(1.0f, this->pwmFrequency_), 3500.0f);
   float prescaleValue =
       ((this->oscillatorFrequency_ / (frequency * 4096.0)) + 0.5) - 1;
@@ -240,10 +232,14 @@ void PCA9685Communication::setFrequency() {
   }
 }
 
-PCA9685Channel* PCA9685Communication::createChannel(uint8_t channel) {
+PCA9685Channel* PCA9685Interface::createChannel(
+    const PCA9685Channel::Builder& channelBuilder) {
   return new PCA9685Channel(
-      channel, std::bind(&PCA9685Communication::setChannelValue, this,
-                         std::placeholders::_1, std::placeholders::_2));
+      channelBuilder,
+      std::bind(&PCA9685Interface::setChannelValue, this, std::placeholders::_1,
+                std::placeholders::_2),
+      std::bind(&PCA9685Interface::setPWMFrequency, this,
+                std::placeholders::_1));
 }
 
 }  // namespace communication

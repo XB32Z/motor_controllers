@@ -1,9 +1,9 @@
 /**
- * @file pca9685_channel.h
+ * @file bcm2835_pwm_channel.h
  * @author Pierre Venet
  * @brief
  * @version 0.1
- * @date 2021-03-05
+ * @date 2021-02-28
  *
  * @copyright Copyright (c) 2021
  *
@@ -11,37 +11,39 @@
 #pragma once
 
 #include <motor_controllers/communication/i_pwm_signal_channel.h>
+#include <stdint.h>
 
 #include <functional>
-#include <string>
+#include <list>
 
 namespace motor_controllers {
 
 namespace communication {
 
 /**
- * @brief The PWM channels for the PCA9685 chip.
- *
- * This chip only has PWM channels.
+ * @brief A channel for the BCM2835 chip
  *
  */
-class PCA9685Channel : public IPWMSignalChannel {
+class BCM2835PWMChannel : public IPWMSignalChannel {
  public:
   struct Builder {
-    int channelId;
-    float range;
+    uint8_t pinNumber;
+    uint8_t channel;
+    uint32_t range;
   };
 
  public:
-  PCA9685Channel(const Builder&,
-                 std::function<void(uint8_t, uint8_t*)> setValue,
-                 std::function<void(float)> setPWMFreq);
+  /**
+   * @brief Construct a new BCM2835PWMChannel for a pin
+   */
+  BCM2835PWMChannel(const Builder& builder,
+                    std::function<void(float)> setPWMFreq);
 
-  ~PCA9685Channel() = default;
+  ~BCM2835PWMChannel();
 
-  PCA9685Channel(const PCA9685Channel&) = delete;
+  BCM2835PWMChannel(const BCM2835PWMChannel&) = delete;
 
-  PCA9685Channel& operator=(const PCA9685Channel&) = delete;
+  BCM2835PWMChannel& operator=(const BCM2835PWMChannel&) = delete;
 
  public:
   /**
@@ -87,10 +89,20 @@ class PCA9685Channel : public IPWMSignalChannel {
    */
   float getMaxValue() const final override;
 
+ public:
+  /**
+   * @brief Initialize the channel
+   *
+   * This is specific to the BCM2835 channel. Each channel must be initialized
+   * individually.
+   *
+   */
+  void initialize();
+
  private:
-  uint8_t channel_;
-  float range_;
-  std::function<void(uint8_t, uint8_t*)> setValue_;
+  uint8_t pinNumber_;
+  uint8_t pwmChannel_;
+  uint32_t range_;
   std::function<void(float)> setPWMFreq_;
 };
 }  // namespace communication

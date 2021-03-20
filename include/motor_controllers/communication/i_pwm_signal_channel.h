@@ -1,5 +1,5 @@
 /**
- * @file pca9685_channel.h
+ * @file i_pwm_signal_channel.h
  * @author Pierre Venet
  * @brief
  * @version 0.1
@@ -10,38 +10,25 @@
  */
 #pragma once
 
-#include <motor_controllers/communication/i_pwm_signal_channel.h>
-
-#include <functional>
-#include <string>
+#include <motor_controllers/communication/i_signal_channel.h>
 
 namespace motor_controllers {
-
 namespace communication {
 
 /**
- * @brief The PWM channels for the PCA9685 chip.
+ * @brief Class to represent a channel used to send a PWM signal
  *
- * This chip only has PWM channels.
  *
  */
-class PCA9685Channel : public IPWMSignalChannel {
+class IPWMSignalChannel : public ISignalChannel {
  public:
-  struct Builder {
-    int channelId;
-    float range;
-  };
+  IPWMSignalChannel();
 
- public:
-  PCA9685Channel(const Builder&,
-                 std::function<void(uint8_t, uint8_t*)> setValue,
-                 std::function<void(float)> setPWMFreq);
+  virtual ~IPWMSignalChannel() = default;
 
-  ~PCA9685Channel() = default;
+  IPWMSignalChannel(const IPWMSignalChannel&) = delete;
 
-  PCA9685Channel(const PCA9685Channel&) = delete;
-
-  PCA9685Channel& operator=(const PCA9685Channel&) = delete;
+  IPWMSignalChannel& operator=(const IPWMSignalChannel&) = delete;
 
  public:
   /**
@@ -49,7 +36,7 @@ class PCA9685Channel : public IPWMSignalChannel {
    *
    * @param frequency in hertz
    */
-  void setPWMFrequency(float frequency) final override;
+  virtual void setPWMFrequency(float frequency) = 0;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -60,7 +47,7 @@ class PCA9685Channel : public IPWMSignalChannel {
    * @param start start of the signal on the period
    * @param end end of the signal on the period
    */
-  void setPWM(float start, float end) final override;
+  virtual void setPWM(float start, float end) = 0;
 
   /**
    * @brief Set the Pulse Width Modulation
@@ -71,27 +58,23 @@ class PCA9685Channel : public IPWMSignalChannel {
    *
    * @param dutyCycle a number between 0 and 1
    */
-  void setDutyCyle(float dutyCycle) final override;
+  virtual void setDutyCyle(float dutyCycle) = 0;
 
   /**
    * @brief Get the minimum value that can be send as PWM signal.
    *
    * @return float
    */
-  float getMinValue() const final override;
+  virtual float getMinValue() const = 0;
 
   /**
    * @brief Get the maximum value that can be send as PWM signal.
    *
    * @return float
    */
-  float getMaxValue() const final override;
-
- private:
-  uint8_t channel_;
-  float range_;
-  std::function<void(uint8_t, uint8_t*)> setValue_;
-  std::function<void(float)> setPWMFreq_;
+  virtual float getMaxValue() const = 0;
 };
+
 }  // namespace communication
+
 }  // namespace motor_controllers

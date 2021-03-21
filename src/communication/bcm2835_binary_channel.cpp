@@ -7,7 +7,7 @@ namespace motor_controllers {
 
 namespace communication {
 
-BCM2835BinaryChannel::BCM2835BinaryChannel(const Builder& builder)
+BCM2835BinaryChannel::BCM2835BinaryChannel(const Configuration& builder)
     : IBinarySignalChannel(builder.channelMode),
       pinNumber_(builder.pinNumber),
       eventDetectValue_(builder.eventDetectValue),

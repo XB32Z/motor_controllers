@@ -20,7 +20,7 @@ namespace motor_controllers {
 namespace communication {
 
 /**
- * @brief Builder interface for channels
+ * @brief Configuration interface for channels
  *
  * Because we cannot return unique_ptr in a covariant class hierarchy, we use
  * this template workaround.
@@ -42,7 +42,7 @@ namespace communication {
  * @tparam ChannelMode The type of channel that this class will produce
  * @tparam ChannelBuilder The builder object used to create a ChannelMode
  */
-template <typename ChannelMode, typename Builder>
+template <typename ChannelMode, typename Configuration>
 class ChannelBuilder : public ICommunicationInterface {
  public:
   virtual ~ChannelBuilder() {
@@ -54,7 +54,7 @@ class ChannelBuilder : public ICommunicationInterface {
 
  public:
   std::unique_ptr<ChannelMode, std::function<void(ISignalChannel*)>>
-  configureChannel(const Builder& channelBuilder) {
+  configureChannel(const Configuration& channelBuilder) {
     // Call the method of the implementation of this class to get the properly
     // configured ChannelMode.
     ChannelMode* channel = this->createChannel(channelBuilder);
@@ -84,7 +84,7 @@ class ChannelBuilder : public ICommunicationInterface {
    * @param channel
    * @return ChannelMode*
    */
-  virtual ChannelMode* createChannel(const Builder& channel) = 0;
+  virtual ChannelMode* createChannel(const Configuration& channel) = 0;
 
   /**
    * @brief Unregister a channel from the communication

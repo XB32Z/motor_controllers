@@ -36,9 +36,9 @@ using BCM2835BinaryChannelRef =
  *
  */
 class BCM2835Interface
-    : public ChannelBuilder<BCM2835PWMChannel, BCM2835PWMChannel::Builder>,
+    : public ChannelBuilder<BCM2835PWMChannel, BCM2835PWMChannel::Configuration>,
       public ChannelBuilder<BCM2835BinaryChannel,
-                            BCM2835BinaryChannel::Builder> {
+                            BCM2835BinaryChannel::Configuration> {
  public:
   /**
    * @brief Construct a new BCM2835Interface object
@@ -55,9 +55,9 @@ class BCM2835Interface
 
  public:
   using ChannelBuilder<BCM2835BinaryChannel,
-                       BCM2835BinaryChannel::Builder>::configureChannel;
+                       BCM2835BinaryChannel::Configuration>::configureChannel;
   using ChannelBuilder<BCM2835PWMChannel,
-                       BCM2835PWMChannel::Builder>::configureChannel;
+                       BCM2835PWMChannel::Configuration>::configureChannel;
   /**
    * @brief Start the communication with the BCM2835 chip.
    *
@@ -74,10 +74,10 @@ class BCM2835Interface
   void setClockDivider(float frequency);
 
   BCM2835PWMChannel* createChannel(
-      const BCM2835PWMChannel::Builder& channel) final override;
+      const BCM2835PWMChannel::Configuration& channel) final override;
 
   BCM2835BinaryChannel* createChannel(
-      const BCM2835BinaryChannel::Builder& channel) final override;
+      const BCM2835BinaryChannel::Configuration& channel) final override;
 
  private:
   uint8_t clockDivider_;

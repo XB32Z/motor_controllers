@@ -11,7 +11,7 @@ namespace motor_controllers {
 
 namespace communication {
 
-PCA9685Channel::PCA9685Channel(const Builder& buidler,
+PCA9685Channel::PCA9685Channel(const Configuration& buidler,
                                std::function<void(uint8_t, uint8_t*)> setValue,
                                std::function<void(float)> setPWMFreq)
     : IPWMSignalChannel(),

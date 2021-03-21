@@ -18,19 +18,19 @@ int main(int, char*[]) {
   std::cout << "Connecting to BCM2835" << std::endl;
   BCM2835Interface communication = BCM2835Interface();
 
-  BCM2835PWMChannel::Builder pwmABuilder = BCM2835PWMChannel::Builder();
+  BCM2835PWMChannel::Configuration pwmABuilder = BCM2835PWMChannel::Configuration();
   pwmABuilder.pinNumber = 26;
   pwmABuilder.channel = 0;
   pwmABuilder.range = 1024;
   BCM2835PWMChannelRef pwmA = communication.configureChannel(pwmABuilder);
   pwmA->setPWMFrequency(11718.75);
 
-  BCM2835BinaryChannel::Builder m1Builder = BCM2835BinaryChannel::Builder();
+  BCM2835BinaryChannel::Configuration m1Builder = BCM2835BinaryChannel::Configuration();
   m1Builder.pinNumber = 20;
   m1Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m1 = communication.configureChannel(m1Builder);
 
-  BCM2835BinaryChannel::Builder m2Builder = BCM2835BinaryChannel::Builder();
+  BCM2835BinaryChannel::Configuration m2Builder = BCM2835BinaryChannel::Configuration();
   m2Builder.pinNumber = 21;
   m2Builder.channelMode = ChannelMode::OUTPUT;
   BCM2835BinaryChannelRef m2 = communication.configureChannel(m2Builder);

@@ -26,7 +26,7 @@ namespace communication {
  */
 class BCM2835BinaryChannel : public IBinarySignalChannel {
  public:
-  struct Builder {
+  struct Configuration {
     uint8_t pinNumber;
     ChannelMode channelMode;
     EventDetectType eventDetectValue;
@@ -36,7 +36,7 @@ class BCM2835BinaryChannel : public IBinarySignalChannel {
   /**
    * @brief Construct a new BCM2835BinaryChannel for a pin
    */
-  BCM2835BinaryChannel(const Builder& builder);
+  BCM2835BinaryChannel(const Configuration& builder);
 
   virtual ~BCM2835BinaryChannel();
 

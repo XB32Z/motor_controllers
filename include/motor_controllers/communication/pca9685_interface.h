@@ -33,7 +33,7 @@ using PCA9685ChannelRef =
  *
  */
 class PCA9685Interface
-    : public ChannelBuilder<PCA9685Channel, PCA9685Channel::Builder> {
+    : public ChannelBuilder<PCA9685Channel, PCA9685Channel::Configuration> {
  public:
   /**
    * @brief Construct a new PCA9685Interface object
@@ -111,7 +111,7 @@ class PCA9685Interface
   void setFrequency();
 
   PCA9685Channel* createChannel(
-      const PCA9685Channel::Builder& channelBuilder) final override;
+      const PCA9685Channel::Configuration& channelBuilder) final override;
 
  private:
   int file_;

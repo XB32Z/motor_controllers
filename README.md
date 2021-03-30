@@ -69,3 +69,6 @@ Because Python works with shared libraries, the project needs to be build with t
 colcon build --packages-select motor_controllers --cmake-args -DBUILD_PYTHON_WRAPPER=ON -DBUILD_SHARED_LIBS=ON
 ```
 to build the project as SHARED libraries with the Python wrapper. *Note that all the examples and nodes are availables but might be slighlty slower.*
+
+### Discussions
+The wrapper could be implemented directly with pybind11 as the unique_ptr reaquired to write manual conversion files. However with it too, one cannot use wrap a function taking a unique pointer as input. There a bit of trickery has to be used and a better solution would be to provide a helper class for python that instanciate an Encoder directly from the pin numbers.

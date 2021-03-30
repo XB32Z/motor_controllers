@@ -5,6 +5,8 @@ from motor_controllers.bcm2835 import (
     BCM2835Interface,
     BCM2835BinaryChannelConfiguration,
     BCM2835PWMChannelConfiguration,
+    BinarySignal_BINARY_HIGH,
+    BinarySignal_BINARY_LOW,
     ChannelMode_OUTPUT,
 )
 
@@ -17,10 +19,8 @@ if __name__ == "__main__":
     pwmConf.channel = 0
     pwmConf.range = 1024
 
-
     pwm = communication.configureChannel(pwmConf)
     pwm.setPWMFrequency(11718.75)
-
 
     m1Conf = BCM2835BinaryChannelConfiguration()
     m1Conf.pinNumber = 20
@@ -31,7 +31,13 @@ if __name__ == "__main__":
     m2Conf.pinNumber = 21
     m2Conf.channelMode = ChannelMode_OUTPUT
     m2 = communication.configureChannel(m2Conf)
-    
+
+    communication.start()
+
+    m1.set(BinarySignal_BINARY_HIGH)
+    m2.set(BinarySignal_BINARY_LOW)
+    pwm.setDutyCyle(0.5)
+
     try:
         while True:
             time.sleep(1)

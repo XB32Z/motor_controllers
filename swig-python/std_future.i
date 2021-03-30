@@ -19,8 +19,8 @@ namespace std {
     $result = SWIG_NewPointerObj((new $1_ltype(std::move($1))), $&1_descriptor, SWIG_POINTER_OWN);
   %}
 
-  %typemap(in) std::unique_ptr<Type> %{
-    $1 = $input;
-  %}
+ /* %typemap(in) std::future<Type> %{
+    $1 = $input; TODO
+  %}*/
 
 %enddef

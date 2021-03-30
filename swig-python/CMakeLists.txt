@@ -46,7 +46,6 @@ if(BUILD_BCM2835_INTERFACE)
                    SOURCES bcm2835.i)
 
   target_link_libraries(pyMotorControllerCommunicationBCM2835 PUBLIC pyMotorControllerCommunication)
-  target_include_directories(pyMotorControllerCommunicationBCM2835 PUBLIC ${PYTHON_INCLUDE_PATH})
   set_property(TARGET pyMotorControllerCommunicationBCM2835 PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
   add_custom_command(TARGET pyMotorControllerCommunicationBCM2835
@@ -56,6 +55,26 @@ if(BUILD_BCM2835_INTERFACE)
                                                       ${CMAKE_CURRENT_LIST_DIR}/motor_controllers/)
 
 endif()
+
+
+### Encoder
+set_property(SOURCE encoder.i PROPERTY CPLUSPLUS ON)
+set_property(SOURCE encoder.i PROPERTY SWIG_MODULE_NAME "encoder")
+
+swig_add_library(pyMotorControllerEncoder
+                 TYPE SHARED
+                 LANGUAGE python
+                 SOURCES encoder.i)
+
+target_link_libraries(pyMotorControllerEncoder PUBLIC pyMotorControllerCommunication)
+set_property(TARGET pyMotorControllerEncoder PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
+
+
+add_custom_command(TARGET pyMotorControllerEncoder
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/encoder.py 
+                                                    ${CMAKE_CURRENT_BINARY_DIR}/$<TARGET_FILE_NAME:pyMotorControllerEncoder>                                
+                                                    ${CMAKE_CURRENT_LIST_DIR}/motor_controllers/)
 
 
 ## Install the package and scripts

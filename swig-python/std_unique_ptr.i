@@ -1,5 +1,6 @@
 // From
 // https://stackoverflow.com/questions/27693812/how-to-handle-unique-ptrs-with-swig
+
 namespace std {
   %feature("novaluewrapper") unique_ptr;
   template <typename Type, void(*deleter)(Type*)>
@@ -25,14 +26,32 @@ namespace std {
 
 %define wrap_unique_ptr(Name, Type, Deleter)
   %template(Name) std::unique_ptr<Type, Deleter>;
-  %newobject std::unique_ptr<Type, Deleter>::release;
+  //%newobject std::unique_ptr<Type, Deleter>::release;
 
   %typemap(out) std::unique_ptr<Type, Deleter> %{
-    $result = SWIG_NewPointerObj((new $1_ltype(std::move($1))), $&1_descriptor, SWIG_POINTER_OWN);
+    %set_output(SWIG_NewPointerObj((new $1_ltype(std::move($1))), $&1_descriptor,  $owner | SWIG_POINTER_OWN));
   %}
 
   %typemap(in) std::unique_ptr<Type, Deleter> %{
-    $1 = std::move($input);
+    {
+      int newmem = 0;
+      void * argp = NULL;
+      int res = SWIG_ConvertPtrAndOwn($input, &argp, $1_descriptor, %convertptr_flags, &newmem);
+      if (!SWIG_IsOK(res)) {
+        %argument_fail(res, "$type", $symname, $argnum);
+      }
+      if (!argp) {
+        %argument_nullref("$type", $symname, $argnum);
+      } else {
+        $1 = std::move(*(%reinterpret_cast(argp, $1_ltype*)));
+        if (newmem & SWIG_CAST_NEW_MEMORY) delete %reinterpret_cast(argp, $1_ltype *);
+      }
+    }
   %}
+
+  %typemap(memberin) std::unique_ptr<Type, Deleter>* %{
+    aoifnajnbfg
+  %}
+
 
 %enddef

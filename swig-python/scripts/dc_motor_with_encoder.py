@@ -8,6 +8,13 @@ from motor_controllers.bcm2835 import (
     BinarySignal_BINARY_HIGH,
     BinarySignal_BINARY_LOW,
     ChannelMode_OUTPUT,
+    ChannelMode_EVENT_DETECT,
+    EventDetectType_EVENT_BOTH_EDGES,
+)
+from motor_controllers.encoder import (
+    Direction_BACKWARD,
+    Direction_INVALID,
+    Encoder,
 )
 
 
@@ -32,7 +39,24 @@ if __name__ == "__main__":
     m2Conf.channelMode = ChannelMode_OUTPUT
     m2 = communication.configureChannel(m2Conf)
 
+    # Encoder
+    p2Conf = BCM2835BinaryChannelConfiguration()
+    p2Conf.pinNumber = 27
+    p2Conf.channelMode = ChannelMode_EVENT_DETECT
+    p2Conf.eventDetectValue = EventDetectType_EVENT_BOTH_EDGES
+    p2 = communication.configureChannel(p2Conf)
+
+    p3Conf = BCM2835BinaryChannelConfiguration()
+    p3Conf.pinNumber = 22
+    p3Conf.channelMode = ChannelMode_EVENT_DETECT
+    p3Conf.eventDetectValue = EventDetectType_EVENT_BOTH_EDGES
+    p3 = communication.configureChannel(p3Conf)
+
+    # Create a quadrature encoder of resolution 13
+    encoder = Encoder(p2, p3, 13)
+
     communication.start()
+    encoder.start(50)
 
     m1.set(BinarySignal_BINARY_HIGH)
     m2.set(BinarySignal_BINARY_LOW)
@@ -40,7 +64,15 @@ if __name__ == "__main__":
 
     try:
         while True:
-            time.sleep(1)
+            speed = encoder.getSpeed() * 60.0
+            direction = encoder.getDirection()
+            if direction == Direction_BACKWARD: 
+                speed = -speed
+            if direction != Direction_INVALID:
+                print(f"Current speed {speed} RPM")
+            else:
+                print("Invalid direction, corrupted data")
+            # time.sleep(1)
     except KeyboardInterrupt:
         print("Finishing program")
     finally:

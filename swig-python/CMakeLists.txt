@@ -66,7 +66,7 @@ swig_add_library(pyMotorControllerEncoder
                  LANGUAGE python
                  SOURCES encoder.i)
 
-target_link_libraries(pyMotorControllerEncoder PUBLIC pyMotorControllerCommunication)
+target_link_libraries(pyMotorControllerEncoder PUBLIC pyMotorControllerCommunication MotorControllersEncoder)
 set_property(TARGET pyMotorControllerEncoder PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
 

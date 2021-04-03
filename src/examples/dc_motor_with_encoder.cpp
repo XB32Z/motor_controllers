@@ -51,10 +51,11 @@ int main(int, char*[]) {
   p3Builder.eventDetectValue = EventDetectType::EVENT_BOTH_EDGES;
   IBinarySignalChannel::Ref p3 = communication.configureChannel(p3Builder);
 
-  // Create a quadrature encoder of resolution 13
-  Encoder encoder(std::move(p2), std::move(p3), 13);
+  // Create an encoder of resolution 13
+  Encoder encoder(std::move(p2), 13);
 
   communication.start();
+  encoder.start(50);
 
   isRunning = true;
   signal(SIGINT, onSignalReceived);
@@ -63,7 +64,7 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(0.5);  // half max speed
+  pwmA->setDutyCyle(1.0);  // half max speed
 
   while (isRunning) {
     float speed = encoder.getSpeed() * 60.0;

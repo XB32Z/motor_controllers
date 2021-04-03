@@ -50,6 +50,11 @@ Direction Encoder::getDirection() const {
   return this->direction_;
 }
 
+ulong Encoder::getCount() const {
+  std::lock_guard<std::mutex> lock(this->mtx_);
+  return this->count_;
+}
+
 void Encoder::start(float freq) {
   std::chrono::microseconds samplingPeriod(
       static_cast<unsigned int>(std::round(1.0 / freq * 10e6)));
@@ -224,7 +229,7 @@ void Encoder::estimateVelocityEncoder(
              now - lastUpdate)) >= samplingPeriod) {
       std::lock_guard<std::mutex> lock(this->mtx_);
       lastUpdate = now;
-      this->speed_ = cpt / r;
+      this->speed_ = cpt / (dt.count() * r);
       cpt = 0;
     }
     ++cpt;

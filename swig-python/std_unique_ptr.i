@@ -49,9 +49,5 @@ namespace std {
     }
   %}
 
-  %typemap(memberin) std::unique_ptr<Type, Deleter>* %{
-    aoifnajnbfg
-  %}
-
 
 %enddef

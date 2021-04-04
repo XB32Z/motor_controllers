@@ -30,7 +30,7 @@ int main(int argc, char* argv[]) {
   // Create the 16 channels of the PCA9685 chip
   std::vector<PCA9685ChannelRef> channels;
   for (uint8_t i = 0; i < 16; ++i) {
-    PCA9685Channel::Builder builder = {.channelId = i, .range = 0x0FFF};
+    PCA9685Channel::Configuration builder = {.channelId = i, .range = 0x0FFF};
     PCA9685ChannelRef channel = communication.configureChannel(builder);
     channel->setPWMFrequency(50);  // Freq is shared with all channels.
     channels.push_back(std::move(channel));

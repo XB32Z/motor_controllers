@@ -18,12 +18,12 @@ int main(int, char*[]) {
   std::cout << "Connecting to BCM2835" << std::endl;
   BCM2835Interface communication = BCM2835Interface();
 
-  BCM2835BinaryChannel::Builder p2Builder = BCM2835BinaryChannel::Builder();
+  BCM2835BinaryChannel::Configuration p2Builder = BCM2835BinaryChannel::Configuration();
   p2Builder.pinNumber = 27;
   p2Builder.channelMode = ChannelMode::INPUT;
   BCM2835BinaryChannelRef p2 = communication.configureChannel(p2Builder);
 
-  BCM2835BinaryChannel::Builder p3Builder = BCM2835BinaryChannel::Builder();
+  BCM2835BinaryChannel::Configuration p3Builder = BCM2835BinaryChannel::Configuration();
   p3Builder.pinNumber = 22;
   p3Builder.channelMode = ChannelMode::INPUT;
   BCM2835BinaryChannelRef p3 = communication.configureChannel(p3Builder);

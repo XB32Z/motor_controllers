@@ -1,22 +1,22 @@
-project(motor_controllers_encoder)
+project(MotorControllersEncoder)
 
-add_library(motor_controller_encoder STATIC encoder.cpp)
+add_library(${PROJECT_NAME} encoder.cpp)
 
-target_include_directories(motor_controller_encoder 
+target_include_directories(${PROJECT_NAME} 
                            PUBLIC 
                                $<BUILD_INTERFACE:${motor_controllers_ROOT_DIR}/include>
                                 $<INSTALL_INTERFACE:include>)
 
-target_compile_options(motor_controller_encoder PUBLIC ${SHARED_COMPILE_OPTIONS})
+target_compile_options(${PROJECT_NAME} PUBLIC ${SHARED_COMPILE_OPTIONS})
 
-install(TARGETS motor_controller_encoder
-        EXPORT motor_controller_encoderTargets
+install(TARGETS ${PROJECT_NAME}
+        EXPORT ${PROJECT_NAME}Targets
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         RUNTIME DESTINATION bin)
 
-install(EXPORT motor_controller_encoderTargets
-        FILE motor_controller_encoderTargets.cmake
+install(EXPORT ${PROJECT_NAME}Targets
+        FILE ${PROJECT_NAME}Targets.cmake
         DESTINATION lib/cmake)
 
 install(DIRECTORY ${motor_controllers_ROOT_DIR}/include/motor_controllers/encoder

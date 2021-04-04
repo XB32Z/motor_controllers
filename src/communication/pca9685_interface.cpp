@@ -233,7 +233,7 @@ void PCA9685Interface::setFrequency() {
 }
 
 PCA9685Channel* PCA9685Interface::createChannel(
-    const PCA9685Channel::Builder& channelBuilder) {
+    const PCA9685Channel::Configuration& channelBuilder) {
   return new PCA9685Channel(
       channelBuilder,
       std::bind(&PCA9685Interface::setChannelValue, this, std::placeholders::_1,

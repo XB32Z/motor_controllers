@@ -1,0 +1,3 @@
+motor_controllers/*.py
+motor_controllers/*.so
+!motor_controllers/__init__.py

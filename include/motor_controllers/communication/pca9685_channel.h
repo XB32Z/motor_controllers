@@ -27,13 +27,13 @@ namespace communication {
  */
 class PCA9685Channel : public IPWMSignalChannel {
  public:
-  struct Builder {
+  struct Configuration {
     int channelId;
     float range;
   };
 
  public:
-  PCA9685Channel(const Builder&,
+  PCA9685Channel(const Configuration&,
                  std::function<void(uint8_t, uint8_t*)> setValue,
                  std::function<void(float)> setPWMFreq);
 

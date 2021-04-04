@@ -8,7 +8,7 @@ namespace motor_controllers {
 
 namespace communication {
 
-BCM2835PWMChannel::BCM2835PWMChannel(const Builder& builder,
+BCM2835PWMChannel::BCM2835PWMChannel(const Configuration& builder,
                                      std::function<void(float)> setPWMFreq)
     : IPWMSignalChannel(),
       pinNumber_(builder.pinNumber),

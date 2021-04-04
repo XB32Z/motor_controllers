@@ -39,13 +39,13 @@ void BCM2835Interface::start() {
 
   for (auto& channel :
        this->ChannelBuilder<BCM2835PWMChannel,
-                            BCM2835PWMChannel::Builder>::channels_) {
+                            BCM2835PWMChannel::Configuration>::channels_) {
     channel->initialize();
   }
 
   for (auto& channel :
        this->ChannelBuilder<BCM2835BinaryChannel,
-                            BCM2835BinaryChannel::Builder>::channels_) {
+                            BCM2835BinaryChannel::Configuration>::channels_) {
     channel->initialize();
   }
 
@@ -56,13 +56,13 @@ void BCM2835Interface::stop() {
   if (!this->running_) return;
   for (auto& channel :
        this->ChannelBuilder<BCM2835PWMChannel,
-                            BCM2835PWMChannel::Builder>::channels_) {
+                            BCM2835PWMChannel::Configuration>::channels_) {
     channel->setDutyCyle(0.0);
   }
 
   for (auto& channel :
        this->ChannelBuilder<BCM2835BinaryChannel,
-                            BCM2835BinaryChannel::Builder>::channels_) {
+                            BCM2835BinaryChannel::Configuration>::channels_) {
     if (channel->getChannelMode() == ChannelMode::OUTPUT) {
       channel->set(BinarySignal::BINARY_LOW);
     } else if (channel->getChannelMode() == ChannelMode::EVENT_DETECT) {
@@ -99,13 +99,13 @@ void BCM2835Interface::setClockDivider(float frequency) {
 }
 
 BCM2835PWMChannel* BCM2835Interface::createChannel(
-    const BCM2835PWMChannel::Builder& builder) {
+    const BCM2835PWMChannel::Configuration& builder) {
   return new BCM2835PWMChannel(
       builder, std::bind(&BCM2835Interface::setClockDivider, this,
                          std::placeholders::_1));
 }
 BCM2835BinaryChannel* BCM2835Interface::createChannel(
-    const BCM2835BinaryChannel::Builder& builder) {
+    const BCM2835BinaryChannel::Configuration& builder) {
   return new BCM2835BinaryChannel(builder);
 }
 

@@ -53,7 +53,7 @@ if __name__ == "__main__":
     p3 = communication.configureChannel(p3Conf)
 
     # Create a quadrature encoder of resolution 13
-    encoder = Encoder(p2, p3, 13)
+    # encoder = Encoder(p2, p3, 13) TODO workaround the unique_ptr
 
     communication.start()
     encoder.start(50)
@@ -64,15 +64,7 @@ if __name__ == "__main__":
 
     try:
         while True:
-            speed = encoder.getSpeed() * 60.0
-            direction = encoder.getDirection()
-            if direction == Direction_BACKWARD: 
-                speed = -speed
-            if direction != Direction_INVALID:
-                print(f"Current speed {speed} RPM")
-            else:
-                print("Invalid direction, corrupted data")
-            # time.sleep(1)
+            time.sleep(1)
     except KeyboardInterrupt:
         print("Finishing program")
     finally:

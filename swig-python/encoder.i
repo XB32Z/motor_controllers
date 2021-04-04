@@ -8,7 +8,7 @@
 
 namespace motor_controllers {
   namespace encoder {
-    // Ignore the constructors because SWIG will not call move
+    // Ignore the constructors because SWIG will not call move or cast the unique_ptrs
     %ignore Encoder::Encoder(
           communication::IBinarySignalChannel::Ref channelA, 
           communication::IBinarySignalChannel::Ref channelB,

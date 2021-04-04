@@ -32,11 +32,13 @@ namespace std {
     %set_output(SWIG_NewPointerObj((new $1_ltype(std::move($1))), $&1_descriptor,  $owner | SWIG_POINTER_OWN));
   %}
 
-  %typemap(in) std::unique_ptr<Type, Deleter> %{
+  %typemap(in) 
+                std::unique_ptr<Type, Deleter>,
+                std::unique_ptr<Type, Deleter>& %{
     {
       int newmem = 0;
       void * argp = NULL;
-      int res = SWIG_ConvertPtrAndOwn($input, &argp, $1_descriptor, %convertptr_flags, &newmem);
+      int res = SWIG_ConvertPtrAndOwn($input, &argp,  $descriptor(std::unique_ptr< Type, Deleter > *), %convertptr_flags, &newmem);
       if (!SWIG_IsOK(res)) {
         %argument_fail(res, "$type", $symname, $argnum);
       }
@@ -49,5 +51,16 @@ namespace std {
     }
   %}
 
+  %typemap(typecheck) 
+                      std::unique_ptr<Type, Deleter>,
+                      std::unique_ptr<Type, Deleter>& %{
+    int res = SWIG_ConvertPtr($input, 0, $descriptor(std::unique_ptr< Type, Deleter >), 0);
+    $1 = SWIG_CheckState(res);
+  %}
+
+  %typemap(check) std::unique_ptr<Type, Deleter>& %{
+    if($1 == 0)
+      SWIG_fail;
+  %}
 
 %enddef

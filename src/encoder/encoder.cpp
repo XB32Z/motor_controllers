@@ -188,7 +188,7 @@ void Encoder::asyncEstimateVelocityQuadratureEncoder(
     qemIndex.set(0, lastB);
     qemIndex.set(1, lastA);
 
-    auto now = clock_::now();
+    const auto now = clock_::now();
     if ((dt = std::chrono::duration_cast<std::chrono::microseconds>(
              now - lastUpdate)) >= samplingPeriod) {
       std::lock_guard<std::mutex> lock(this->mtx_);
@@ -224,7 +224,7 @@ void Encoder::estimateVelocityEncoder(
   while (this->running_) {
     this->channelA_->asyncDetectEvent().get();
 
-    auto now = clock_::now();
+    const auto now = clock_::now();
     if ((dt = std::chrono::duration_cast<std::chrono::microseconds>(
              now - lastUpdate)) >= samplingPeriod) {
       std::lock_guard<std::mutex> lock(this->mtx_);

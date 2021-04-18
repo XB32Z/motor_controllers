@@ -3,7 +3,7 @@
 #include <signal.h>
 
 #include <chrono>    // std::chrono::milliseconds
-#include <cmath>     // std::sin
+#include <cmath>     // std::cos
 #include <iostream>  // std::cout, std::endl
 #include <thread>    // std::this_thread::sleep_for
 
@@ -66,11 +66,10 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(0.5);
 
   const std::chrono::time_point<std::chrono::high_resolution_clock> startTime =
       std::chrono::high_resolution_clock::now();
-  const float frequency = 1.0 / 4.0;
+  const float frequency = 1.0 / 10.0;
 
   while (isRunning) {
     float speed = encoder.getSpeed() * 60.0;
@@ -84,7 +83,8 @@ int main(int, char*[]) {
     const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - startTime);
 
-    pwmA->setDutyCyle(std::sin(2.0 * M_PI * frequency * dt.count() * 10e-6));
+    pwmA->setDutyCyle(
+        (1.0 + std::cos(2.0 * M_PI * frequency * dt.count() * 10e-6)) / 2.0);
   }
 
   std::cout << "Stopping controller" << std::endl;

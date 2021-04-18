@@ -100,6 +100,8 @@ class PiGPIOBinaryChannel : public IBinarySignalChannel {
    */
   void initialize();
 
+  void clean();
+
  private:
   void setInternal(const BinarySignal&);
 

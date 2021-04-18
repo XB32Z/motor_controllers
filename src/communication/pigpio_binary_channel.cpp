@@ -99,6 +99,12 @@ void PiGPIOBinaryChannel::initialize() {
   }
 }
 
+void PiGPIOBinaryChannel::clean() {
+  if (this->getChannelMode() == ChannelMode::EVENT_DETECT) {
+    gpioSetAlertFuncEx(this->pinNumber_, 0, this);
+  }
+}
+
 void PiGPIOBinaryChannel::setInternal(const BinarySignal& value) {
   if (value == BinarySignal::BINARY_HIGH) {
     gpioWrite(this->pinNumber_, 1);
@@ -180,8 +186,7 @@ void PiGPIOBinaryChannel::setupEventDetection() {
   gpioSetAlertFuncEx(this->pinNumber_, fct, this);
 }
 
-void PiGPIOBinaryChannel::onGPIOChangeState(int gpio, int level,
-                                            uint32_t) {
+void PiGPIOBinaryChannel::onGPIOChangeState(int gpio, int level, uint32_t) {
   // pigpio calls this callback at the specified frequency.
   // This means that the state might have changed multiple times
   // between two callbacks.

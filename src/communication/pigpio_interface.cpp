@@ -54,6 +54,7 @@ void PiGPIOInterface::stop() {
     } else if (channel->getChannelMode() == ChannelMode::EVENT_DETECT) {
       channel->interuptEventDetection();
     }
+    channel->clean();
   }
   gpioTerminate();
   this->running_ = false;

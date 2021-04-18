@@ -52,8 +52,9 @@ std::future<BinarySignal> PiGPIOBinaryChannel::asyncDetectEvent() {
 
   return std::async([this]() {
     std::unique_lock<std::mutex> lck(this->eventDetectionMutex_);
-    this->eventDetectionCondVar_.wait(
-        lck, [this] { return this->eventDetectionReady_; });
+    this->eventDetectionCondVar_.wait(lck, [this] {
+      return this->eventDetectionReady_ || !this->detectEventAsyncAlive_;
+    });
     this->eventDetectionReady_ = false;
     return this->eventDetectCurrentValue_;
   });
@@ -80,9 +81,12 @@ void PiGPIOBinaryChannel::onDetectEvent(
   this->detectEventThread_ = std::thread([this, &callback]() {
     while (this->detectEventThreadAlive_) {
       std::unique_lock<std::mutex> lck(this->eventDetectionMutex_);
-      this->eventDetectionCondVar_.wait(
-          lck, [this] { return this->eventDetectionReady_; });
-      callback(this->eventDetectCurrentValue_);
+      this->eventDetectionCondVar_.wait(lck, [this] {
+        return this->eventDetectionReady_ || !this->detectEventThreadAlive_;
+      });
+      if (this->detectEventThreadAlive_) {
+        callback(this->eventDetectCurrentValue_);
+      }
       this->eventDetectionReady_ = false;
     }
   });
@@ -116,11 +120,13 @@ void PiGPIOBinaryChannel::setInternal(const BinarySignal& value) {
 void PiGPIOBinaryChannel::interuptEventDetection() {
   if (this->detectEventThreadAlive_) {
     this->detectEventThreadAlive_ = false;
+    this->eventDetectionCondVar_.notify_one();
     this->detectEventThread_.join();
   }
 
   if (this->detectEventAsyncAlive_) {
     this->detectEventAsyncAlive_ = false;
+    this->eventDetectionCondVar_.notify_one();
   }
 }
 

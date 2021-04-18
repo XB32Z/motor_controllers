@@ -23,7 +23,6 @@ int main(int, char*[]) {
   pwmABuilder.pinNumber = 26;
   pwmABuilder.range = 1024;
   PiGPIOPWMChannelRef pwmA = communication.configureChannel(pwmABuilder);
-  pwmA->setPWMFrequency(500.0);
 
   PiGPIOBinaryChannel::Configuration m1Builder =
       PiGPIOBinaryChannel::Configuration();
@@ -56,6 +55,7 @@ int main(int, char*[]) {
   Encoder encoder(std::move(p2), 13);
 
   communication.start();
+  pwmA->setPWMFrequency(500.0);
   encoder.start(50);
 
   isRunning = true;

@@ -3,6 +3,7 @@
 #include <signal.h>
 
 #include <chrono>    // std::chrono::milliseconds
+#include <cmath>     // std::sin
 #include <iostream>  // std::cout, std::endl
 #include <thread>    // std::this_thread::sleep_for
 
@@ -20,19 +21,19 @@ int main(int, char*[]) {
   // Motor
   PiGPIOPWMChannel::Configuration pwmABuilder =
       PiGPIOPWMChannel::Configuration();
-  pwmABuilder.pinNumber = 26;
+  pwmABuilder.pinNumber = 12;
   pwmABuilder.range = 1024;
   PiGPIOPWMChannelRef pwmA = communication.configureChannel(pwmABuilder);
 
   PiGPIOBinaryChannel::Configuration m1Builder =
       PiGPIOBinaryChannel::Configuration();
-  m1Builder.pinNumber = 20;
+  m1Builder.pinNumber = 6;
   m1Builder.channelMode = ChannelMode::OUTPUT;
   PiGPIOBinaryChannelRef m1 = communication.configureChannel(m1Builder);
 
   PiGPIOBinaryChannel::Configuration m2Builder =
       PiGPIOBinaryChannel::Configuration();
-  m2Builder.pinNumber = 21;
+  m2Builder.pinNumber = 13;
   m2Builder.channelMode = ChannelMode::OUTPUT;
   PiGPIOBinaryChannelRef m2 = communication.configureChannel(m2Builder);
 
@@ -52,7 +53,7 @@ int main(int, char*[]) {
   IBinarySignalChannel::Ref p3 = communication.configureChannel(p3Builder);
 
   // Create an encoder of resolution 13
-  Encoder encoder(std::move(p2), 13);
+  Encoder encoder(std::move(p2), std::move(p3), 13);
 
   communication.start();
   pwmA->setPWMFrequency(500.0);
@@ -65,7 +66,11 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(0.5);  // half max speed
+  pwmA->setDutyCyle(0.5);
+
+  const std::chrono::time_point<std::chrono::high_resolution_clock> startTime =
+      std::chrono::high_resolution_clock::now();
+  const float frequency = 1.0 / 4.0;
 
   while (isRunning) {
     float speed = encoder.getSpeed() * 60.0;
@@ -76,6 +81,10 @@ int main(int, char*[]) {
     else
       std::cout << "Invalid direction, corrupted data" << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::high_resolution_clock::now() - startTime);
+
+    pwmA->setDutyCyle(std::sin(2.0 * M_PI * frequency * dt.count() * 10e-6));
   }
 
   std::cout << "Stopping controller" << std::endl;

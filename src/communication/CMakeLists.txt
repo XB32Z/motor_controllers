@@ -27,8 +27,13 @@ if(BUILD_BCM2835_INTERFACE)
 endif()
 
 if(BUILD_PIGPIO_INTERFACE)
-        find_package(pigpio REQUIRED)
-
+        if(TARGET pigpio)
+                # the pigpio library does not define INTERFACE_INCLUDE_DIRECTORIES on the build tree.
+                include_directories(${pigpio_SOURCE_DIR})
+        else()
+                find_package(pigpio REQUIRED)
+        endif()
+        
         list(APPEND ${PROJECT_NAME}_sources pigpio_interface.cpp pigpio_pwm_channel.cpp pigpio_binary_channel.cpp)
         list(APPEND ${PROJECT_NAME}_dependencies pigpio)
         

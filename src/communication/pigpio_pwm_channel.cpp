@@ -38,7 +38,7 @@ PiGPIOPWMChannel::PiGPIOPWMChannel(const Configuration& builder,
     : IPWMSignalChannel(),
       pinNumber_(builder.pinNumber),
       range_(builder.range),
-      altMode_(builder.altMode_),
+      altMode_(builder.altMode),
       frequency_(500),
       isHardware_(builder.isHardware),
       sampleRate_(sampleRate) {}

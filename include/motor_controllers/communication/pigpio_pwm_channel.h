@@ -22,7 +22,20 @@ namespace motor_controllers {
 namespace communication {
 
 /**
- * @brief A channel for the PIGPIO chip
+ * @brief PWM channel wrapper for pigpio library.
+ *
+ * Note that the PWM signal can either be produced by software on any pin or on
+ * dedicated pin supporting hardware PWM.
+ *
+ * Using software PWM will increase the CPU usage. To create a software PWM
+ * channel, use in the Configuration, isHardware = false and altMode =
+ * PI_OUTPUT.
+ *
+ * Using hardware PWM must be done on dedicated pins configured with the correct
+ * mode. Use in the Configuration, isHardware = true and altMode given:
+ *
+ * - for RaspberryPi 4 using BCM2711: https://elinux.org/RPi_BCM2711_GPIOs
+ * - for RapsberryPi < 4 using BCM2835: https://elinux.org/RPi_BCM2835_GPIOs
  *
  */
 class PiGPIOPWMChannel : public IPWMSignalChannel {
@@ -30,13 +43,15 @@ class PiGPIOPWMChannel : public IPWMSignalChannel {
   struct Configuration {
     uint8_t pinNumber;
     uint32_t range;
-    PiGPIOAltMode altMode_ = PiGPIOAltMode::PI_OUTPUT;
+    PiGPIOAltMode altMode = PiGPIOAltMode::PI_OUTPUT;
     bool isHardware = false;
   };
 
  public:
   /**
    * @brief Construct a new PiGPIOPWMChannel for a pin
+   *
+   * Please use PiGPIOInterface::createChannel instead of using the constructor.
    */
   PiGPIOPWMChannel(const Configuration& builder, uint8_t sampleRate_);
 
@@ -49,6 +64,9 @@ class PiGPIOPWMChannel : public IPWMSignalChannel {
  public:
   /**
    * @brief Set the frequency of the PWM signal.
+   *
+   * For each sampling rate, there are 18 supported frequencies.
+   * See http://abyz.me.uk/rpi/pigpio/cif.html#gpioSetPWMfrequency
    *
    * @param frequency in hertz
    */

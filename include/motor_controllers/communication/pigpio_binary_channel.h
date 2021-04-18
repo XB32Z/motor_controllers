@@ -11,9 +11,8 @@
 #pragma once
 
 #include <motor_controllers/communication/i_binary_signal_channel.h>
-#include <stdint.h>
+#include <stdint.h>  // uint8_t, uint32_t
 
-#include <list>
 #include <thread>  // std::thread
 
 namespace motor_controllers {
@@ -22,8 +21,10 @@ namespace communication {
 
 /**
  * @brief Binary channel wrapper for the pigpio library.
- * 
- * Allows to set, get or detect events on a pin.
+ *
+ * Allows to set, get or detect events on a single pin using pigpio.
+ *
+ * See: http://abyz.me.uk/rpi/pigpio/cif.html#
  *
  */
 class PiGPIOBinaryChannel : public IBinarySignalChannel {
@@ -31,12 +32,15 @@ class PiGPIOBinaryChannel : public IBinarySignalChannel {
   struct Configuration {
     uint8_t pinNumber;
     ChannelMode channelMode;
-    EventDetectType eventDetectValue;
+    EventDetectType eventDetectValue = EventDetectType::NONE;
   };
 
  public:
   /**
-   * @brief Construct a new PiGPIOBinaryChannel for a pin
+   * @brief Construct a new PiGPIOBinaryChannel for a pin.
+   *
+   * This should not be called manually but rather call
+   * PiGPIOInterface::createChannel.
    */
   PiGPIOBinaryChannel(const Configuration& builder);
 
@@ -48,15 +52,15 @@ class PiGPIOBinaryChannel : public IBinarySignalChannel {
 
  public:
   /**
-   * @brief Set the value if the channel is an OUTPUT
+   * @brief Set the value if the channel is set to OUTPUT.
    *
    */
   void set(const BinarySignal&) final override;
 
   /**
-   * @brief Get the value if the channel is an INPUT or OUTPUT
+   * @brief Get the value if the channel is set to INPUT
    *
-   * @return BinarySignal
+   * @return BinarySignal the level read on the pin.
    */
   BinarySignal get() final override;
 

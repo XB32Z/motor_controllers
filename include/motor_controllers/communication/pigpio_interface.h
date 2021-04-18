@@ -28,6 +28,12 @@ using PiGPIOBinaryChannelRef =
 /**
  * @brief Communication class that wraps the pigpio library.
  *
+ * The pigpio has the advantage over BCM2835 library to provide a software PWM
+ * channel implementation. This means that any pin on a BCM2835 (or higher) chip
+ * can be used to provide a PWM signal. Of course, software PWM is using much
+ * more CPU than hardware.
+ *
+ * See: http://abyz.me.uk/rpi/pigpio/cif.html#
  *
  */
 class PiGPIOInterface
@@ -38,12 +44,19 @@ class PiGPIOInterface
   /**
    * @brief Construct a new PiGPIOInterface object
    *
+   * This default constructor allows to initialize the pigpio library and to
+   * create channels. The default sample rate of 5us is used (see
+   * documentation).
    */
   PiGPIOInterface();
 
   /**
    * @brief Construct a new PiGPIOInterface object
    *
+   * This constructor allows to specify another sample rate in [1, 2, 4, 5, 8,
+   * 10] us. See documentation of pigpio for pros and cons.
+   *
+   * @param sampleRate
    */
   PiGPIOInterface(uint8_t sampleRate);
 
@@ -60,13 +73,13 @@ class PiGPIOInterface
   using ChannelBuilder<PiGPIOPWMChannel,
                        PiGPIOPWMChannel::Configuration>::configureChannel;
   /**
-   * @brief Start the communication through the PIGPIO.
+   * @brief Start the communication through pigpio library.
    *
    */
   void start() override;
 
   /**
-   * @brief Stop  the communication with the PIGPIO chip.
+   * @brief Stop  the communication through pigpio library.
    *
    */
   void stop() override;

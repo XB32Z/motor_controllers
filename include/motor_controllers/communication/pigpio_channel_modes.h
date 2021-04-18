@@ -14,6 +14,14 @@ namespace motor_controllers {
 
 namespace communication {
 
+/**
+ * @brief Enumeration to allow user to set alt mode on channels.
+ *
+ * Used for example when creating a hardware PWM channel.
+ * In that case, on RPis (as known when writting this) the pins supporting
+ * hardware PWM must be set to ALT5.
+ *
+ */
 enum class PiGPIOAltMode {
   PI_INPUT = 0,
   PI_OUTPUT = 1,
@@ -24,5 +32,5 @@ enum class PiGPIOAltMode {
   PI_ALT4 = 3,
   PI_ALT5 = 2
 };
-}
+}  // namespace communication
 }  // namespace motor_controllers

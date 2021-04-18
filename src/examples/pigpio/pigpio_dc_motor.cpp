@@ -14,7 +14,7 @@ int main(int, char*[]) {
   using namespace motor_controllers::communication;
   using namespace motor_controllers::encoder;
 
-  std::cout << "Connecting to BCM2835" << std::endl;
+  std::cout << "Connecting to BCM2835 using pigpio" << std::endl;
   PiGPIOInterface communication(5);  // sample rate = 5us
 
   // Motor

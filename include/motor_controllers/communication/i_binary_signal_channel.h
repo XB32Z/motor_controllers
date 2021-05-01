@@ -24,7 +24,8 @@ enum class EventDetectType {
   EVENT_LOW,
   EVENT_RISING_EDGE,
   EVENT_FALING_EDGE,
-  EVENT_BOTH_EDGES
+  EVENT_BOTH_EDGES,
+  NONE
 };
 /**
  * @brief Class to represent a channel used to send a signal

@@ -25,20 +25,7 @@ option(BUILD_SHARED_LIBS "Builds the library as SHARED. This is required to have
 
 option(BUILD_3RDPARTY "Download and install the 3rdparty libraries. Will do so at configure time." ON)
 if(BUILD_3RDPARTY)
-
-  option(BUILD_EXTERNAL_BCM2835_LIB "Download and build the BCM2835 library" ON)
-  set(EXTERNAL_BCM2835_LIB_VERSION "1.68" CACHE STRING "The version of BCM2835 to use")
-
-  if(BUILD_SHARED_LIBS)
-    set(EXTERNAL_BCM2835_CFLAGS "-fPIC")  # Will allow to build the SHARED libraries
-  endif()
-
-  message(STATUS "Installing 3rdparty libraries")
-  configure_file(3rdparty/CMakeLists.txt 3rdparty/CMakeLists.txt)
-  execute_process(COMMAND ${CMAKE_COMMAND} -DCMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX}" .
-                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty )
-  execute_process(COMMAND ${CMAKE_COMMAND} --build .
-                  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/3rdparty )
+  add_subdirectory(3rdparty)
 endif()
 
 

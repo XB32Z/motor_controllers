@@ -2,6 +2,7 @@ project(MotorControllersCommunication)
 
 option(BUILD_PCA9685_INTERFACE "Build the PCA9685 interface" ON)
 option(BUILD_BCM2835_INTERFACE "Build the BCM2835 interface" ON)
+option(BUILD_PIGPIO_INTERFACE "Build the pigpio interface" ON)
 
 # Collect the different sources
 set(${PROJECT_NAME}_sources i_signal_channel.cpp)
@@ -22,6 +23,19 @@ if(BUILD_BCM2835_INTERFACE)
 
         list(APPEND ${PROJECT_NAME}_sources bcm2835_interface.cpp bcm2835_pwm_channel.cpp bcm2835_binary_channel.cpp)
         list(APPEND ${PROJECT_NAME}_dependencies bcm2835)
+        
+endif()
+
+if(BUILD_PIGPIO_INTERFACE)
+        if(TARGET pigpio)
+                # the pigpio library does not define INTERFACE_INCLUDE_DIRECTORIES on the build tree.
+                include_directories(${pigpio_SOURCE_DIR})
+        else()
+                find_package(pigpio REQUIRED)
+        endif()
+        
+        list(APPEND ${PROJECT_NAME}_sources pigpio_interface.cpp pigpio_pwm_channel.cpp pigpio_binary_channel.cpp)
+        list(APPEND ${PROJECT_NAME}_dependencies pigpio)
         
 endif()
 

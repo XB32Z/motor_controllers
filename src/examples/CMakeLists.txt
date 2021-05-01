@@ -1,30 +1,14 @@
 project(MotorControllersExamples)
 
 
-add_executable(dc_motor_with_encoder dc_motor_with_encoder.cpp)
-target_link_libraries(dc_motor_with_encoder 
-                      PUBLIC MotorControllersCommunication MotorControllersEncoder)
+if(BUILD_PCA9685_INTERFACE)
+    add_subdirectory(pca9685)
+endif()
 
+if(BUILD_BCM2835_INTERFACE)
+    add_subdirectory(bcm2835)
+endif()
 
-add_executable(simple_dc_motor simple_dc_motor.cpp)
-target_link_libraries(simple_dc_motor 
-                      PUBLIC MotorControllersCommunication)
-
-add_executable(simple_encoder simple_encoder.cpp)
-target_link_libraries(simple_encoder 
-                      PUBLIC MotorControllersCommunication MotorControllersEncoder)
-
-
-add_executable(simple_event_detect_pins simple_event_detect_pins.cpp)
-target_link_libraries(simple_event_detect_pins 
-                      PUBLIC MotorControllersCommunication)
-
-
-add_executable(simple_read_pins simple_read_pins.cpp)
-target_link_libraries(simple_read_pins 
-                      PUBLIC MotorControllersCommunication)
-
-
-add_executable(simple_servo simple_servo.cpp)
-target_link_libraries(simple_servo 
-                      PUBLIC MotorControllersCommunication)
+if(BUILD_PIGPIO_INTERFACE)
+    add_subdirectory(pigpio)
+endif()

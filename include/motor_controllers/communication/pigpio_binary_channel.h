@@ -125,6 +125,7 @@ class PiGPIOBinaryChannel : public IBinarySignalChannel {
   std::mutex eventDetectionMutex_;
   std::condition_variable eventDetectionCondVar_;
   bool eventDetectionReady_;
+  bool eventDetectionProcessed_;
 };
 }  // namespace communication
 }  // namespace motor_controllers

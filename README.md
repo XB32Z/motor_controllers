@@ -16,7 +16,9 @@ In order to use this library, you need to have set up ROS2. The controllers impl
 ### Communication
 The lowest level of the library is the interface to the chips that are able to produce binary and or PWM signal. There are currently two chips implemented:
  - PCA9685: uses i2c to communicate with the host (where the program runs)
- - BCM2835: is the chips present on RPis to controls the GPIOs. The i2c communication used by the chip above, actually uses this too. Note that one should not use directly the GPIOs of the BCM2835 to power any device but connect it to some other chip like a H-Bridge.
+ - BCM2835 or BCM2711: is the chips present on RPis to controls the GPIOs. With this chip you can read and write on GPIOS as well as produce hardware or software PWM signals. This chip can be controlled with two libraries:
+   - The bcm2835 library (cannot produce software pwm signals)
+   - The pigpio library
 
 #### PCA9685
 
@@ -28,7 +30,17 @@ This controller is found on ready to use RaspberryPi hat to controller servo mot
 sudo apt install i2c-tools libi2c-dev
 ```
 
-#### BCM2835
+#### BCM2835 or BCM2711
+This are the chips that equip the raspberry pi:
+ - for RaspberryPi 4 using BCM2711: https://elinux.org/RPi_BCM2711_GPIOs
+ - for RapsberryPi < 4 using BCM2835: https://elinux.org/RPi_BCM2835_GPIOs
+
+Note that in both case, only a limited set of pins can produce a harware PWM signal. For the others, a software PWM signal must be used. Of course, a software one is costly on the CPU. 
+
+Both of these chips can be controller using either of the following libraries. 
+
+##### bcm2835
+
 The following dependency is required:
 ```
 sudo apt install libcap2 libcap-dev
@@ -44,6 +56,11 @@ Add the line
 ```
 dtoverlay=gpio-no-irq
 ```
+
+Note that this library does NOT allow to produce software PWM signals.
+
+##### pigpio
+See http://abyz.me.uk/rpi/pigpio/cif.html#
 
 ### Encoders
 

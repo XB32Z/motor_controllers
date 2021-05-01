@@ -57,7 +57,7 @@ ulong Encoder::getCount() const {
 
 void Encoder::start(float freq) {
   std::chrono::microseconds samplingPeriod(
-      static_cast<unsigned int>(std::round(1.0 / freq * 10e6)));
+      static_cast<unsigned int>(std::round(1.0 / freq * 1e6)));
   this->running_ = true;
   if (this->channelA_) {
     if (this->channelB_) {
@@ -91,7 +91,7 @@ void Encoder::estimateVelocityQuadratureEncoder(
   uint cpt = 0;
   std::chrono::time_point<clock_> lastUpdate = clock_::now();
   std::chrono::microseconds dt;  // time elapsed since last estimation
-  const float r = this->resolution_ * 4.0 * 10e-6;
+  const float r = this->resolution_ * 4.0 * 1e-6;
 
   // Quadrature Encoder Matrix
   //
@@ -165,7 +165,7 @@ void Encoder::asyncEstimateVelocityQuadratureEncoder(
   uint cpt = 0;
   std::chrono::time_point<clock_> lastUpdate = clock_::now();
   std::chrono::microseconds dt;  // time elapsed since last estimation
-  const float r = this->resolution_ * 2.0 * 10e-6;
+  const float r = this->resolution_ * 2.0 * 1e-6;
 
   std::bitset<4> qemIndex;
   qemIndex.reset();
@@ -219,7 +219,7 @@ void Encoder::estimateVelocityEncoder(
   uint cpt = 0;
   std::chrono::time_point<clock_> lastUpdate = clock_::now();
   std::chrono::microseconds dt;  // time elapsed since last estimation
-  const float r = this->resolution_ * 2.0 * 10e-6;
+  const float r = this->resolution_ * 2.0 * 1e-6;
 
   while (this->running_) {
     this->channelA_->asyncDetectEvent().get();

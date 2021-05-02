@@ -1,4 +1,4 @@
-#include <motor_controllers/communication/bcm2835_interface.h>
+#include <motor_controllers/communication/bcm2835/bcm2835_interface.h>
 #include <signal.h>
 
 #include <chrono>

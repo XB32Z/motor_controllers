@@ -1,4 +1,4 @@
-#include <motor_controllers/communication/pigpio_binary_channel.h>
+#include <motor_controllers/communication/pigpio/pigpio_binary_channel.h>
 #include <pigpio.h>
 
 #include <condition_variable>  // std::condition_variable

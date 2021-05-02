@@ -1,5 +1,5 @@
 #include <bcm2835.h>
-#include <motor_controllers/communication/bcm2835_interface.h>
+#include <motor_controllers/communication/bcm2835/bcm2835_interface.h>
 
 #include <algorithm>
 #include <cmath>

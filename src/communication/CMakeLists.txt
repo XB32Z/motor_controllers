@@ -13,7 +13,8 @@ find_package(Threads REQUIRED)
 
 if(BUILD_PCA9685_INTERFACE)
     find_package(i2c REQUIRED)
-    list(APPEND ${PROJECT_NAME}_sources pca9685_interface.cpp pca9685_channel.cpp)
+    list(APPEND ${PROJECT_NAME}_sources pca9685/pca9685_interface.cpp 
+                                        pca9685/pca9685_channel.cpp)
     list(APPEND ${PROJECT_NAME}_dependencies i2c)
 
 endif()
@@ -21,7 +22,9 @@ endif()
 if(BUILD_BCM2835_INTERFACE)
         find_package(BCM2835 REQUIRED)
 
-        list(APPEND ${PROJECT_NAME}_sources bcm2835_interface.cpp bcm2835_pwm_channel.cpp bcm2835_binary_channel.cpp)
+        list(APPEND ${PROJECT_NAME}_sources bcm2835/bcm2835_interface.cpp 
+                                            bcm2835/bcm2835_pwm_channel.cpp 
+                                            bcm2835/bcm2835_binary_channel.cpp)
         list(APPEND ${PROJECT_NAME}_dependencies bcm2835)
         
 endif()
@@ -34,7 +37,9 @@ if(BUILD_PIGPIO_INTERFACE)
                 find_package(pigpio REQUIRED)
         endif()
         
-        list(APPEND ${PROJECT_NAME}_sources pigpio_interface.cpp pigpio_pwm_channel.cpp pigpio_binary_channel.cpp)
+        list(APPEND ${PROJECT_NAME}_sources pigpio/pigpio_interface.cpp 
+                                            pigpio/pigpio_pwm_channel.cpp 
+                                            pigpio/pigpio_binary_channel.cpp)
         list(APPEND ${PROJECT_NAME}_dependencies pigpio)
         
 endif()

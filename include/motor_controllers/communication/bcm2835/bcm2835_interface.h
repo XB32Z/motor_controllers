@@ -10,8 +10,8 @@
  */
 #pragma once
 
-#include <motor_controllers/communication/bcm2835_binary_channel.h>
-#include <motor_controllers/communication/bcm2835_pwm_channel.h>
+#include <motor_controllers/communication/bcm2835/bcm2835_binary_channel.h>
+#include <motor_controllers/communication/bcm2835/bcm2835_pwm_channel.h>
 #include <motor_controllers/communication/channel_builder.h>
 
 #include <functional>

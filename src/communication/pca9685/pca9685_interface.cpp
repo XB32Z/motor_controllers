@@ -5,7 +5,7 @@ extern "C" {
 #include <i2c/smbus.h>
 #include <linux/i2c-dev.h>
 }
-#include <motor_controllers/communication/pca9685_interface.h>
+#include <motor_controllers/communication/pca9685/pca9685_interface.h>
 #include <sys/ioctl.h>
 
 #include <algorithm>

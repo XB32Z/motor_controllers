@@ -1,5 +1,5 @@
 #include <bcm2835.h>
-#include <motor_controllers/communication/bcm2835_pwm_channel.h>
+#include <motor_controllers/communication/bcm2835/bcm2835_pwm_channel.h>
 
 
 // https://resources.pcb.cadence.com/blog/2020-pulse-width-modulation-characteristics-and-the-effects-of-frequency-and-duty-cycle 

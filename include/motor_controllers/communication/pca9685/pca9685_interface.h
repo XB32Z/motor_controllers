@@ -12,7 +12,7 @@
 #pragma once
 #include <motor_controllers/communication/channel_builder.h>
 #include <motor_controllers/communication/i_communication_interface.h>
-#include <motor_controllers/communication/pca9685_channel.h>
+#include <motor_controllers/communication/pca9685/pca9685_channel.h>
 
 #include <map>
 #include <string>

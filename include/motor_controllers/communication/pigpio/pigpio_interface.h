@@ -11,8 +11,8 @@
 #pragma once
 
 #include <motor_controllers/communication/channel_builder.h>
-#include <motor_controllers/communication/pigpio_binary_channel.h>
-#include <motor_controllers/communication/pigpio_pwm_channel.h>
+#include <motor_controllers/communication/pigpio/pigpio_binary_channel.h>
+#include <motor_controllers/communication/pigpio/pigpio_pwm_channel.h>
 
 #include <functional>
 #include <map>

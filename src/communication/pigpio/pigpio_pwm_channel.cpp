@@ -1,4 +1,4 @@
-#include <motor_controllers/communication/pigpio_pwm_channel.h>
+#include <motor_controllers/communication/pigpio/pigpio_pwm_channel.h>
 #include <pigpio.h>
 
 #include <array>          // std::array

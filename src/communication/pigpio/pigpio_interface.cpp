@@ -1,4 +1,4 @@
-#include <motor_controllers/communication/pigpio_interface.h>
+#include <motor_controllers/communication/pigpio/pigpio_interface.h>
 #include <pigpio.h>
 
 #include <algorithm>

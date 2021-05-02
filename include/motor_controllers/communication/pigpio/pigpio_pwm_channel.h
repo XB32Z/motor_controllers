@@ -11,7 +11,7 @@
 #pragma once
 
 #include <motor_controllers/communication/i_pwm_signal_channel.h>
-#include <motor_controllers/communication/pigpio_channel_modes.h>
+#include <motor_controllers/communication/pigpio/pigpio_channel_modes.h>
 #include <stdint.h>
 
 #include <functional>

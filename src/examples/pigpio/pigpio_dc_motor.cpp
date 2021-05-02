@@ -16,7 +16,7 @@ int main(int, char*[]) {
   using namespace motor_controllers::encoder;
 
   std::cout << "Connecting to BCM2835 using pigpio" << std::endl;
-  PiGPIOInterface communication(5);  // sample rate = 5us
+  PiGPIOInterface communication(2);  // sample rate = 2us
 
   // Motor
   PiGPIOPWMChannel::Configuration pwmABuilder =
@@ -56,8 +56,8 @@ int main(int, char*[]) {
   Encoder encoder(std::move(p2), std::move(p3), 13);
 
   communication.start();
-  pwmA->setPWMFrequency(500.0);
-  encoder.start(50);
+  pwmA->setPWMFrequency(20000.0);  // 20kHz motor control
+  encoder.start(5000);             // 5 kHz encoder estimation 
 
   isRunning = true;
   signal(SIGINT, onSignalReceived);

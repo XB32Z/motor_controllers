@@ -111,10 +111,11 @@ void Encoder::estimateVelocityQuadratureEncoder(
   auto eventB = this->channelB_->asyncDetectEvent();
 
   bool lastA = false, lastB = false;
+  bool ready = false;  // used to ensure that B is read only once A is ready.
 
   while (this->running_) {
-    if (eventA.wait_for(std::chrono::microseconds(0)) ==
-        std::future_status::ready) {
+    if (!ready && eventA.wait_for(std::chrono::microseconds(0)) ==
+                      std::future_status::ready) {
       qemIndex <<= 2;  // push previous data
       // Wait for A to switch then start next detection immediatly
       lastA = static_cast<bool>(eventA.get());
@@ -124,10 +125,12 @@ void Encoder::estimateVelocityQuadratureEncoder(
 
       ++cpt;
       ++this->count_;
+
+      ready = true;
     }
 
-    if (eventB.wait_for(std::chrono::microseconds(0)) ==
-        std::future_status::ready) {
+    if (ready && eventB.wait_for(std::chrono::microseconds(0)) ==
+                     std::future_status::ready) {
       qemIndex <<= 2;  // push previous data
       // Wait for B to switch then start next detection immediately
       lastB = static_cast<bool>(eventB.get());
@@ -137,6 +140,8 @@ void Encoder::estimateVelocityQuadratureEncoder(
 
       ++cpt;
       ++this->count_;
+      
+      ready = false;
     }
 
     auto now = clock_::now();
@@ -148,57 +153,6 @@ void Encoder::estimateVelocityQuadratureEncoder(
       this->speed_ = cpt / (dt.count() * r);
       cpt = 0;
     }
-  }
-
-  // Wait for wrap up
-  this->channelA_->interuptEventDetection();
-  this->channelB_->interuptEventDetection();
-  eventA.get();
-  eventB.get();
-}
-
-void Encoder::asyncEstimateVelocityQuadratureEncoder(
-    std::chrono::microseconds samplingPeriod) {
-
-  typedef std::chrono::high_resolution_clock clock_;
-
-  uint cpt = 0;
-  std::chrono::time_point<clock_> lastUpdate = clock_::now();
-  std::chrono::microseconds dt;  // time elapsed since last estimation
-  const float r = this->resolution_ * 2.0 * 1e-6;
-
-  std::bitset<4> qemIndex;
-  qemIndex.reset();
-
-  auto eventA = this->channelA_->asyncDetectEvent();
-  auto eventB = this->channelB_->asyncDetectEvent();
-
-  bool lastA = false, lastB = false;
-
-  while (this->running_) {
-    qemIndex <<= 2;
-    lastA = static_cast<bool>(eventA.get());
-    eventA = this->channelA_->asyncDetectEvent();
-    qemIndex.set(0, lastB);
-    qemIndex.set(1, lastA);
-
-    qemIndex <<= 2;
-    lastB = static_cast<bool>(eventB.get());
-    eventB = this->channelB_->asyncDetectEvent();
-    qemIndex.set(0, lastB);
-    qemIndex.set(1, lastA);
-
-    const auto now = clock_::now();
-    if ((dt = std::chrono::duration_cast<std::chrono::microseconds>(
-             now - lastUpdate)) >= samplingPeriod) {
-      std::lock_guard<std::mutex> lock(this->mtx_);
-      this->direction_ = QEM[static_cast<size_t>(qemIndex.to_ulong())];
-      lastUpdate = now;
-      this->speed_ = cpt / (dt.count() * r);
-      cpt = 0;
-    }
-    ++cpt;
-    ++this->count_;
   }
 
   // Wait for wrap up

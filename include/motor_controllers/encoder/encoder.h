@@ -27,6 +27,9 @@ enum class Direction { STOP = 0, FORWARD = 1, BACKWARD = 2, INVALID = 3 };
  */
 class Encoder {
  public:
+  typedef std::unique_ptr<Encoder> Ref;
+
+ public:
   /**
    * @brief Construct a quadrature Encoder
    *
@@ -57,6 +60,10 @@ class Encoder {
    *
    */
   ~Encoder();
+
+  Encoder(const Encoder&) = delete;
+
+  Encoder& operator=(const Encoder&) = delete;
 
  public:
   /**
@@ -97,7 +104,7 @@ class Encoder {
    *
    * This version is using much CPU but has a better accuracy a lower
    * regimes.
-   * 
+   *
    * TODO way to swith between them.
    *
    * @param samplingPeriod

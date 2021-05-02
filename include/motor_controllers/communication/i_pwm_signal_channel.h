@@ -22,6 +22,11 @@ namespace communication {
  */
 class IPWMSignalChannel : public ISignalChannel {
  public:
+  typedef std::unique_ptr<IPWMSignalChannel,
+                          std::function<void(IPWMSignalChannel*)>>
+      Ref;
+
+ public:
   IPWMSignalChannel();
 
   virtual ~IPWMSignalChannel() = default;

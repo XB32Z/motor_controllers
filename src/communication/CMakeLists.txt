@@ -53,7 +53,7 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} 
                       PUBLIC ${${PROJECT_NAME}_dependencies}
                       PRIVATE Threads::Threads)
-target_compile_options(${PROJECT_NAME} PUBLIC ${SHARED_COMPILE_OPTIONS} -fPIC)
+target_compile_options(${PROJECT_NAME} PUBLIC ${SHARED_COMPILE_OPTIONS})
 
 install(TARGETS ${PROJECT_NAME}
         EXPORT ${PROJECT_NAME}Targets

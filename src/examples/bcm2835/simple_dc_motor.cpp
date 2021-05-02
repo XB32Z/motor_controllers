@@ -44,7 +44,7 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(0.5); // half max speed
+  pwmA->setDutyCycle(0.5); // half max speed
 
   while (isRunning) std::this_thread::sleep_for(std::chrono::milliseconds(100));
 

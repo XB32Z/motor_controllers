@@ -79,7 +79,7 @@ void PiGPIOPWMChannel::setPWM(float start, float end) {
   }
 }
 
-void PiGPIOPWMChannel::setDutyCyle(float dutyCycle) {
+void PiGPIOPWMChannel::setDutyCycle(float dutyCycle) {
   if (this->isCommunicationClosed()) {
     throw std::runtime_error(
         "PiGPIOPWMChannel: communication is closed, cannot set duty cycle");

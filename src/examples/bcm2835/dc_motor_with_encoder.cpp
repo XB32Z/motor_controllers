@@ -64,7 +64,7 @@ int main(int, char*[]) {
 
   m1->set(BinarySignal::BINARY_HIGH);
   m2->set(BinarySignal::BINARY_LOW);
-  pwmA->setDutyCyle(1.0);  // half max speed
+  pwmA->setDutyCycle(1.0);  // half max speed
 
   while (isRunning) {
     float speed = encoder.getSpeed() * 60.0;

@@ -84,7 +84,7 @@ int main(int, char*[]) {
     const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - startTime);
 
-    pwmA->setDutyCyle((1.0 + std::sin(-M_PI/2.0 + ratio * dt.count())) / 2.0);
+    pwmA->setDutyCycle((1.0 + std::sin(-M_PI/2.0 + ratio * dt.count())) / 2.0);
   }
 
   std::cout << "Stopping controller" << std::endl;

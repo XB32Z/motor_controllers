@@ -63,7 +63,7 @@ class IPWMSignalChannel : public ISignalChannel {
    *
    * @param dutyCycle a number between 0 and 1
    */
-  virtual void setDutyCyle(float dutyCycle) = 0;
+  virtual void setDutyCycle(float dutyCycle) = 0;
 
   /**
    * @brief Get the minimum value that can be send as PWM signal.

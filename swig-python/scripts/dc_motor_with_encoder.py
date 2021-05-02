@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
     m1.set(BinarySignal_BINARY_HIGH)
     m2.set(BinarySignal_BINARY_LOW)
-    pwm.setDutyCyle(0.5)
+    pwm.setDutyCycle(0.5)
 
     try:
         while True:

@@ -29,10 +29,10 @@ void BCM2835PWMChannel::setPWMFrequency(float frequency) {
 }
 
 void BCM2835PWMChannel::setPWM(float, float) {
-  throw std::runtime_error("Cannot set PWM, please use setDutyCyle");
+  throw std::runtime_error("Cannot set PWM, please use setDutyCycle");
 }
 
-void BCM2835PWMChannel::setDutyCyle(float dutyCycle) {
+void BCM2835PWMChannel::setDutyCycle(float dutyCycle) {
   if (this->isCommunicationClosed()) {
     throw std::runtime_error(
         "BCM2835PWMChannel: communication is closed, cannot set duty cycle");

@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
   for (auto& channel : channels) {
     if (!isRunning) break;
     for (uint16_t pulselen = 150; pulselen < 600; ++pulselen) {
-      channel->setDutyCyle(pulselen / channel->getMaxValue());
+      channel->setDutyCycle(pulselen / channel->getMaxValue());
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
   }
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
   for (auto& channel : channels) {
     if (!isRunning) break;
     for (uint16_t pulselen = 600; pulselen < 150; --pulselen) {
-      channel->setDutyCyle(pulselen / channel->getMaxValue());
+      channel->setDutyCycle(pulselen / channel->getMaxValue());
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
   }

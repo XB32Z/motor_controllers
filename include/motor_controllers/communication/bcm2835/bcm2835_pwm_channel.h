@@ -73,7 +73,7 @@ class BCM2835PWMChannel : public IPWMSignalChannel {
    *
    * @param dutyCycle a number between 0 and 1
    */
-  void setDutyCyle(float dutyCycle) final override;
+  void setDutyCycle(float dutyCycle) final override;
 
   /**
    * @brief Get the minimum value that can be send as PWM signal.

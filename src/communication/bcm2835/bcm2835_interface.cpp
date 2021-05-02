@@ -57,7 +57,7 @@ void BCM2835Interface::stop() {
   for (auto& channel :
        this->ChannelBuilder<BCM2835PWMChannel,
                             BCM2835PWMChannel::Configuration>::channels_) {
-    channel->setDutyCyle(0.0);
+    channel->setDutyCycle(0.0);
   }
 
   for (auto& channel :

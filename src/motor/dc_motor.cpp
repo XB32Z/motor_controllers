@@ -86,7 +86,7 @@ void DCMotor::controlLoop(std::chrono::microseconds dt) {
       this->forward();
     }
 
-    this->pwmChannel_->setDutyCyle(std::abs(dutyCycle));
+    this->pwmChannel_->setDutyCycle(std::abs(dutyCycle));
 
     std::this_thread::sleep_until(lastUpdate + dt);
     lastUpdate = clock_::now();

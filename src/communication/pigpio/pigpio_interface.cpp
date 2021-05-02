@@ -43,7 +43,7 @@ void PiGPIOInterface::stop() {
   for (auto& channel :
        this->ChannelBuilder<PiGPIOPWMChannel,
                             PiGPIOPWMChannel::Configuration>::channels_) {
-    channel->setDutyCyle(0.0);
+    channel->setDutyCycle(0.0);
   }
 
   for (auto& channel :

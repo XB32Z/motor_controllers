@@ -70,7 +70,7 @@ int main(int, char*[]) {
                                BinarySignal::BINARY_LOW};
 
     // Motor constants
-    conf1.minDutyCycle = 40;
+    conf1.minDutyCycle = 0.5;
     conf1.maxSpeed = 8000.0 / 60.0;  // rotation per seconds
 
     // Controller constants
@@ -101,7 +101,8 @@ int main(int, char*[]) {
     const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - startTime);
 
-    motor1->setSpeed((1.0 + std::sin(-M_PI / 2.0 + ratio * dt.count())) / 2.0);
+    motor1->setSpeed(conf1.maxSpeed *
+                     (1.0 + std::sin(-M_PI / 2.0 + ratio * dt.count())) / 2.0);
   }
 
   std::cout << "Stopping controller" << std::endl;

@@ -33,6 +33,7 @@ void DCMotor::start() {
   this->isRunning_ = true;
   this->encoder_->start(this->encoderSamplingFrequency_);
   this->pwmChannel_->setPWMFrequency(this->pwmFrequency_);
+  this->setForward();
   this->controlThread_ = std::thread(std::bind(&DCMotor::controlLoop, this));
 }
 
@@ -46,7 +47,7 @@ void DCMotor::stop() {
 
 void DCMotor::setSpeed(double speed) {
   std::lock_guard<std::mutex> lock(this->mtx_);
-  this->targetSpeed_ = 0.0;
+  this->targetSpeed_ = speed;
 }
 
 double DCMotor::getSpeed() const {

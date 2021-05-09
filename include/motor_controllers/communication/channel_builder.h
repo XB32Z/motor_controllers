@@ -12,9 +12,10 @@
 
 #include <motor_controllers/communication/i_communication_interface.h>
 
-#include <algorithm>
+#include <algorithm>  // std::find_if
 #include <functional>
-#include <vector>
+#include <memory>  // std::unique_ptr
+#include <vector>  // std::vector
 
 namespace motor_controllers {
 namespace communication {
@@ -44,6 +45,9 @@ namespace communication {
  */
 template <typename ChannelMode, typename Configuration>
 class ChannelBuilder : public ICommunicationInterface {
+ public:
+  typedef std::unique_ptr<ChannelBuilder> Ref;
+
  public:
   virtual ~ChannelBuilder() {
     // Close all the channels which are not yet deregistered.

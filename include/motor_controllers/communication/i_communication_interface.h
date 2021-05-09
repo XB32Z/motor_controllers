@@ -34,6 +34,9 @@ namespace communication {
  */
 class ICommunicationInterface {
  public:
+  typedef std::unique_ptr<ICommunicationInterface> Ref;
+
+ public:
   virtual ~ICommunicationInterface() = default;
 
  public:
@@ -50,7 +53,6 @@ class ICommunicationInterface {
    *
    */
   virtual void stop() = 0;
-
 };
 }  // namespace communication
 

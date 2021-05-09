@@ -8,9 +8,6 @@ option(BUILD_PIGPIO_INTERFACE "Build the pigpio interface" ON)
 set(${PROJECT_NAME}_sources i_signal_channel.cpp)
 set(${PROJECT_NAME}_dependencies "")
 
-set(THREADS_PREFER_PTHREAD_FLAG ON)
-find_package(Threads REQUIRED)
-
 if(BUILD_PCA9685_INTERFACE)
     find_package(i2c REQUIRED)
     list(APPEND ${PROJECT_NAME}_sources pca9685/pca9685_interface.cpp 

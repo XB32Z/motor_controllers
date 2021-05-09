@@ -81,8 +81,67 @@ int main(int, char*[]) {
   }
   auto motor1 = factory.createMotor(conf1);
 
+  // Motor 2
+  auto conf2 = PiGPIODCMotorFactory::Configuration();
+  {
+    conf2.pwmChannelConfiguration.pinNumber = 26;
+    conf2.pwmChannelConfiguration.range = 1024;
+    conf2.pwmFrequency = 20000.0;
+
+    {
+      PiGPIOBinaryChannel::Configuration m1 =
+          PiGPIOBinaryChannel::Configuration();
+      m1.pinNumber = 20;
+      m1.channelMode = ChannelMode::OUTPUT;
+
+      PiGPIOBinaryChannel::Configuration m2 =
+          PiGPIOBinaryChannel::Configuration();
+      m2.pinNumber = 21;
+      m2.channelMode = ChannelMode::OUTPUT;
+      conf2.directionChannelsConfiguration.push_back(m1);
+      conf2.directionChannelsConfiguration.push_back(m2);
+    }
+    // Encoder binary channels configurations
+    {
+      conf2.encoderChannelAConfiguration = {
+          .pinNumber = 16,
+          .channelMode = ChannelMode::EVENT_DETECT,
+          .eventDetectValue = EventDetectType::EVENT_BOTH_EDGES};
+
+      PiGPIOBinaryChannel::Configuration confB =
+          PiGPIOBinaryChannel::Configuration();
+      confB.pinNumber = 19;
+      confB.channelMode = ChannelMode::EVENT_DETECT;
+      confB.eventDetectValue = EventDetectType::EVENT_BOTH_EDGES;
+      conf2.encoderChannelBConfiguration =
+          std::optional<PiGPIOBinaryChannel::Configuration>(confB);
+      conf2.encoderResolution = 13;
+      conf2.encoderSamplingFrequency = 5000;
+    }
+
+    // Direction
+    conf2.forwardConfiguration = {BinarySignal::BINARY_HIGH,
+                                  BinarySignal::BINARY_LOW};
+    conf2.backwardConfiguration = {BinarySignal::BINARY_LOW,
+                                   BinarySignal::BINARY_HIGH};
+    conf2.stopConfiguration = {BinarySignal::BINARY_LOW,
+                               BinarySignal::BINARY_LOW};
+
+    // Motor constants
+    conf2.minDutyCycle = 0.5;
+    conf2.maxSpeed = 8000.0 / 60.0;  // rotation per seconds
+
+    // Controller constants
+    conf2.Kp = 1.0;
+    conf2.Ki = 0.0;
+    conf2.Kd = 0.0;
+    conf2.dt = std::chrono::microseconds(10);
+  }
+  auto motor2 = factory.createMotor(conf2);
+
   factory.startCommunication();
   motor1->start();
+  motor2->start();
 
   isRunning = true;
   signal(SIGINT, onSignalReceived);
@@ -101,8 +160,10 @@ int main(int, char*[]) {
     const auto dt = std::chrono::duration_cast<std::chrono::microseconds>(
         std::chrono::high_resolution_clock::now() - startTime);
 
-    motor1->setSpeed(conf1.maxSpeed *
-                     (1.0 + std::sin(-M_PI / 2.0 + ratio * dt.count())) / 2.0);
+    const auto factor =
+        (1.0 + std::sin(-M_PI / 2.0 + ratio * dt.count())) / 2.0;
+    motor1->setSpeed(conf1.maxSpeed * factor);
+    motor2->setSpeed(conf2.maxSpeed * factor);
   }
 
   std::cout << "Stopping controller" << std::endl;
